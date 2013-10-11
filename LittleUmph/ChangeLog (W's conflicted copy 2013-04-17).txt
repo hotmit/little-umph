@@ -1,0 +1,6 @@
+﻿1:23pm 10/14/2012
+	Multi target build
+
+8:30 PM 3/4/2012
+	Removed "MagicU.cs" from util 
+
