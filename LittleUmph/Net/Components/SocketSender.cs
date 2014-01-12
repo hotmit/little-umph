@@ -24,9 +24,8 @@ namespace LittleUmph.Net.Components
         private const int BufferLength = 4096;
         private string _Address;
         private Exception _LastException;
-        private bool _PersistConnection = true;
         private int _PortNumber;
-        private int _Retries = 1;
+        private int _ConnectionTimeout = 7000;
         private Socket _CurrentSocket;
         private bool _listening = false;
         private IPAddress[] _ipAddresses;
@@ -80,26 +79,18 @@ namespace LittleUmph.Net.Components
         }
 
         /// <summary>
-        /// Set to false to close the connection after sending the message.
+        /// Gets or sets the connection timeout.
         /// </summary>
+        /// <value>
+        /// The connection timeout.
+        /// </value>
         [Category("[ SocketSender ]")]
-        [Description("Set to false to close the connection after sending the message.")]
-        [DefaultValue(true)]
-        public bool PersistConnection
+        [Description("Connection timeout limit (in millisecond.")]
+        [DefaultValue(7000)]
+        public int ConnectionTimeout
         {
-            get { return _PersistConnection; }
-            set { _PersistConnection = value; }
-        }
-        /// <summary>
-        /// Number of retry to attempt sending the package after it failed.
-        /// </summary>
-        [Category("[ SocketSender ]")]
-        [Description("Number of retry to attempt sending the package after it failed.")]
-        [DefaultValue(1)]
-        public int Retries
-        {
-            get { return _Retries; }
-            set { _Retries = value; }
+            get { return _ConnectionTimeout; }
+            set { _ConnectionTimeout = value; }
         }
 
         /// <summary>
@@ -110,7 +101,7 @@ namespace LittleUmph.Net.Components
         public Socket CurrentSocket
         {
             get { return _CurrentSocket; }
-            set { _CurrentSocket = value; }
+            private set { _CurrentSocket = value; }
         }
         #endregion
 
@@ -142,23 +133,28 @@ namespace LittleUmph.Net.Components
         /// Connects this instance.
         /// </summary>
         /// <returns></returns>
-        public Socket Connect()
+        public void Connect()
         {
             // use the default timeout
-            return Connect(-1);
+            Connect(ConnectionTimeout);
         }
 
-        public Socket Connect(int timeout)
+        /// <summary>
+        /// Connects the specified timeout.
+        /// </summary>
+        /// <param name="timeout">The timeout.</param>
+        /// <returns></returns>
+        public void Connect(int timeout)
         {
             try
             {
-                if (_CurrentSocket != null && _CurrentSocket.Connected)
+                if (CurrentSocket != null && CurrentSocket.Connected)
                 {
-                    return _CurrentSocket;
+                    return;
                 }
                 else
                 {
-                    _CurrentSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    CurrentSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
                     if (_ipAddresses == null)
                     {
@@ -166,13 +162,14 @@ namespace LittleUmph.Net.Components
                         if (_ipAddresses == null || _ipAddresses.Length == 0)
                         {
                             LastException = new Exception("Invalid Address");
-                            return null;
+                            CurrentSocket = null;
+                            return;
                         }
                     }
 
                     if (timeout > 0)
                     {
-                        IAsyncResult connectAr = _CurrentSocket.BeginConnect(_ipAddresses, PortNumber, 
+                        IAsyncResult connectAr = CurrentSocket.BeginConnect(_ipAddresses, PortNumber, 
                             delegate(IAsyncResult ar) 
                             {
                                 try
@@ -184,32 +181,25 @@ namespace LittleUmph.Net.Components
                                 {
                                     
                                 }
-                            }, _CurrentSocket);
-
-                        WaitHandle wait = connectAr.AsyncWaitHandle;
-
+                            }, CurrentSocket);
+                        
                         if (!connectAr.IsCompleted)
                         {
-                            wait.WaitOne(timeout);
+                            connectAr.AsyncWaitHandle.WaitOne(timeout);
                             if (!connectAr.IsCompleted)
                             {
-                                _CurrentSocket.EndConnect(connectAr);
-                                _CurrentSocket = null;
-                                return _CurrentSocket;
-                            }
-                            else
-                            {
-                                _CurrentSocket.EndConnect(connectAr);
+                                CurrentSocket.EndConnect(connectAr);
+                                CurrentSocket = null;
                             }
                         }
                     }
                     else
                     {
-                        _CurrentSocket.Connect(_ipAddresses, PortNumber);
+                        CurrentSocket.Connect(_ipAddresses, PortNumber);
                     }
 
 
-                    if (_CurrentSocket.Connected)
+                    if (CurrentSocket.Connected)
                     {
                         if (!_listening && ServerDataReceived != null)
                         {
@@ -218,18 +208,14 @@ namespace LittleUmph.Net.Components
                     }
                     else
                     {
-                        _CurrentSocket = null;
-                        return _CurrentSocket;
+                        CurrentSocket = null;
                     }
-
-                    return _CurrentSocket;
                 }
             }
             catch (Exception xpt)
             {
                 _listening = false;
-                _CurrentSocket = null;
-                return _CurrentSocket;
+                CurrentSocket = null;
             }
         }
 
@@ -240,7 +226,7 @@ namespace LittleUmph.Net.Components
         public void Disconnect()
         {
             _listening = false;
-            closeConnection(_CurrentSocket);
+            closeConnection(CurrentSocket);
         }
         #endregion
 
@@ -252,7 +238,7 @@ namespace LittleUmph.Net.Components
         /// <returns></returns>
         public bool Send(string data)
         {
-            return send(data, Retries);
+            return send(data);
         }
 
         /// <summary>
@@ -261,66 +247,31 @@ namespace LittleUmph.Net.Components
         /// <param name="data">The data.</param>
         public void SendAsync(string data)
         {
-            ThreadPool.QueueUserWorkItem(sendThread);
+            ThreadPool.QueueUserWorkItem((o) =>
+            {
+                send(data);
+            });
         }
-
-        private void sendThread(object o)
-        {
-            string data = (string)o;
-            send(data, Retries);
-        }
-
-        private bool send(string data, int tries)
+        
+        private bool send(string data)
         {
             try
             {
-                if (tries <= 0)
+                Connect();
+                if (CurrentSocket == null)
                 {
-                    return false;
-                }
-
-                Socket socket = Connect();
-                if (socket == null)
-                {
-                    if (tries > 0)
-                    {
-                        return send(data, tries--);
-                    }
-                    else
-                    {
                         return false;
-                    }
                 }
 
                 byte[] content = Encoding.UTF8.GetBytes(data);
-                int byteCount = socket.Send(content);
+                int byteCount = CurrentSocket.Send(content);
 
-                if (!PersistConnection)
-                {
-                    closeConnection(socket);
-                }
                 bool success = byteCount == content.Length;
-
-                if (!success && tries > 0)
-                {
-                    return send(data, tries--);
-                }
                 return success;
             }
             catch (Exception xpt)
             {
                 LastException = xpt;
-
-                // Exit if it is an address related issues
-                if (xpt.Message.Contains(":" + PortNumber))
-                {
-                    return false;
-                }
-
-                if (tries > 0)
-                {
-                    return send(data, tries--);
-                }
                 return false;
             }
         }
@@ -342,13 +293,16 @@ namespace LittleUmph.Net.Components
             socket.Shutdown(SocketShutdown.Send);                        
             try
             {
-                byte[] buffer = new byte[BufferLength];
-                int lenRecv = 0;
-                while ((lenRecv = socket.Receive(buffer)) > 0)
+                if (socket.Available > 0)
                 {
-                    if (socket.Available == 0 || lenRecv == 0)
+                    byte[] buffer = new byte[BufferLength];
+                    int lenRecv = 0;
+                    while ((lenRecv = socket.Receive(buffer)) > 0)
                     {
-                        break;
+                        if (socket.Available == 0 || lenRecv == 0)
+                        {
+                            break;
+                        }
                     }
                 }
             }
@@ -372,69 +326,73 @@ namespace LittleUmph.Net.Components
                 return;
             }
 
-            ThreadPool.QueueUserWorkItem(receivingData);
+            ThreadPool.QueueUserWorkItem((o) =>
+            {
+                if (_listening)
+                {
+                    return;
+                }
+                _listening = true;
+
+                Connect();
+                if (CurrentSocket == null)
+                {
+                    return;
+                }
+
+                try
+                {
+                    while (_listening && CurrentSocket.Connected)
+                    {
+                        if (CurrentSocket.Available == 0)
+                        {
+                            Thread.Sleep(200);
+                        }
+                        else
+                        {
+                            byte[] buffer = new byte[4096];
+                            int lenRecv;
+                            string data = "";
+                            while ((lenRecv = CurrentSocket.Receive(buffer)) > 0)
+                            {
+                                if (!_listening)
+                                {
+                                    return;
+                                }
+
+                                data += Encoding.UTF8.GetString(buffer, 0, lenRecv);                                
+
+                                if (CurrentSocket.Available == 0)
+                                {
+                                    Dlgt.ThreadSafeInvoke(ServerDataReceived, this,
+                                        new SocketDataEventArgs(CurrentSocket, Address, PortNumber, data));
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception xpt)
+                {
+                    Console.WriteLine(xpt.Message);
+                }
+                finally
+                {
+                    _listening = false;
+                }
+            });
         }
 
         public void EndReceiving()
         {
             _listening = false;
         }
-
-        private void receivingData(object o)
-        {
-            if (_listening)
-            {
-                return;
-            }
-            _listening = true;
-
-            Socket socket = Connect();
-            if (socket == null)
-            {
-                return;
-            }
-
-            try
-            {
-                while (_listening)
-                {
-                    byte[] buffer = new byte[4096];
-                    int lenRecv;
-                    string data;
-                    while ((lenRecv = socket.Receive(buffer)) > 0)
-                    {
-                        data = Encoding.UTF8.GetString(buffer, 0, lenRecv);
-
-                        Dlgt.ThreadSafeInvoke(ServerDataReceived, this, 
-                                new SocketDataEventArgs(socket, Address, PortNumber, data));
-
-                        if (socket.Available == 0 || !_listening)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (!socket.Connected || lenRecv == 0)
-                    {
-                        _listening = false;
-                    }
-                }
-            }
-            catch (Exception xpt)
-            {
-                Console.WriteLine(xpt.Message);
-            }
-            finally
-            {
-                _listening = false;
-            }
-        }
         #endregion
 
         #region [ IDisposable Members ]
         void IDisposable.Dispose()
         {
-            closeConnection(_CurrentSocket);
+            closeConnection(CurrentSocket);
         }
         #endregion
 

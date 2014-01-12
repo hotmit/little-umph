@@ -745,7 +745,7 @@ namespace LittleUmph
 
         #region [ IntVal ]
         /// <summary>
-        /// Evaluate and extract the integer from the string
+        /// Evaluate and extract the integer from the string (return 0 on error)
         /// </summary>
         /// <param name="txt">The string.</param>
         /// <returns></returns>

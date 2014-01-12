@@ -32,6 +32,9 @@ namespace LittleUmph.Net.Components
         private int _BackLog = 200;
         private Exception _LastException;
         private bool _ThreadSafe = true;
+
+        // Thread signal.
+        private ManualResetEvent _allDone = new ManualResetEvent(false);
         #endregion
 
         #region [ Properties ]
@@ -101,20 +104,6 @@ namespace LittleUmph.Net.Components
             get { return _LastException != null; }
         }
 
-        private bool _PersistConnection = true;
-
-        /// <summary>
-        /// True to not close connection on received.
-        /// </summary>
-        [Category("[ SocketListener ]")]
-        [Description("True to not close connection on received.")]
-        [DefaultValue(true)]
-        public bool PersistConnection
-        {
-            get { return _PersistConnection; }
-            set { _PersistConnection = value; }
-        }
-
         /// <summary>
         /// Set to true to invoke the events in a thread safe mananer.
         /// </summary>
@@ -178,10 +167,7 @@ namespace LittleUmph.Net.Components
                 container.Add(this);
             }
 
-            InitializeComponent();
-
-            _listeningThread = new Thread(listeningThread);
-            _listeningThread.IsBackground = true;
+            InitializeComponent();            
         }
 
         #endregion
@@ -196,15 +182,11 @@ namespace LittleUmph.Net.Components
             {
                 try
                 {
-                    if ((_listeningThread.ThreadState & System.Threading.ThreadState.Unstarted)
-                        == System.Threading.ThreadState.Unstarted)
-                    {
-                        _listeningThread.Start();
-                    }
-                    else
-                    {
-                        _listeningThread.Interrupt();
-                    }
+                    _listeningThread = new Thread(listeningThread);
+                    _listeningThread.IsBackground = true;
+
+                    Listening = true;
+                    _listeningThread.Start();
 
                     LastException = null;
                 }
@@ -231,7 +213,7 @@ namespace LittleUmph.Net.Components
                     LastException = null;
                     Listening = false;
 
-                    _listeningThread.Suspend();
+                    AbortThread();
                 }
                 catch (Exception xpt)
                 {
@@ -240,6 +222,44 @@ namespace LittleUmph.Net.Components
                    Dlgt.Invoke(ThreadSafe, ErrorEncountered, this,
                                 new SocketErrorEventArgs("StopListening()", xpt));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Aborts the thread.
+        /// </summary>
+        private void AbortThread()
+        {
+            try
+            {
+                // Signal the thread to stop using "Listening" flag
+                Listening = false;
+                // Tell "WaitOne" method in listeningThread() method to stop blocking
+                _allDone.Set(); 
+
+                // Max wait time is 3000ms or 3sec
+                for (int i = 0; i < 30; i++)
+                {
+                    if (_listeningThread != null && _listeningThread.IsAlive)
+                    {
+                        // wait for the thread to stop
+                        _listeningThread.Join(100);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+
+                if (_listeningThread != null && _listeningThread.IsAlive)
+                {
+                    _listeningThread.Abort();
+                }
+            }
+            finally
+            {
+                _listeningThread = null;
             }
         }
         #endregion
@@ -257,19 +277,21 @@ namespace LittleUmph.Net.Components
                 using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
                 {
                     socket.Bind(new IPEndPoint(IPAddress.Any, PortNumber));
+                    // Non-blocking
                     socket.Listen(BackLog);
-                    
-                    Thread.Sleep(300);                    
 
-                    while (true)
+                    while (Listening)
                     {
                         try
                         {
-                            Socket recv = socket.Accept();
+                            // This will clear the flag, and will block "WaitOne" method (NON-blocking call)
+                            _allDone.Reset();
 
-                            Thread thread = new Thread(processConnection);
-                            thread.IsBackground = true;
-                            thread.Start(recv);
+                            // Non-blocking call: when there is an incoming connection acceptingIncomingConnection() is called
+                            socket.BeginAccept(acceptingIncomingConnection, socket);
+
+                            // This will block until _allDone.Set() is called
+                            _allDone.WaitOne();
                         }
                         catch (Exception xpt)
                         {
@@ -289,41 +311,55 @@ namespace LittleUmph.Net.Components
             }
         }
 
-        private void processConnection(object o)
+        private void acceptingIncomingConnection(IAsyncResult ar)
         {
-            if (!Listening)
-            {
-                return;
-            }
-
             try
             {
-                Socket recv = (Socket)o;
+                // Signal the listeningThread to accept new connection
+                // ie unblock "_allDone.WaitOne()" line
+                _allDone.Set();
 
-                string address = "";
-                int portUsed;
+                // Get the main socket
+                Socket socket = (Socket)ar.AsyncState;
+
+                // Receive incoming socket from client
+                Socket recv = socket.EndAccept(ar);
+
+                if (!Listening)
+                {
+                    return;
+                }
+
                 try
                 {
-                    IPEndPoint sender = (IPEndPoint)recv.RemoteEndPoint;
-                    address = sender.Address.ToString();
-                    portUsed = sender.Port;
+                    string address = "";
+                    int portUsed;
+                    try
+                    {
+                        IPEndPoint sender = (IPEndPoint)recv.RemoteEndPoint;
+                        address = sender.Address.ToString();
+                        portUsed = sender.Port;
+                    }
+                    catch (Exception xpt)
+                    {
+                        address = "";
+                        portUsed = 0;
+                    }
+                    Dlgt.Invoke(ThreadSafe, ClientConnected, this,
+                                         new SocketEventArgs(recv, address, portUsed));
+
+                    processConnection(recv, address, portUsed);
                 }
                 catch (Exception xpt)
                 {
-                    address = "";
-                    portUsed = 0;
+                    Listening = false;
+                    LastException = xpt;
+                    Dlgt.Invoke(ThreadSafe, ErrorEncountered, this,
+                                     new SocketErrorEventArgs("acceptingIncomingConnection(ar)", xpt));
                 }
-               Dlgt.Invoke(ThreadSafe, ClientConnected, this,
-                                    new SocketEventArgs(recv, address, portUsed));
-
-                processConnection(recv, address, portUsed);
             }
-            catch (Exception xpt)
+            catch (System.ObjectDisposedException xpt)
             {
-                Listening = false;
-                LastException = xpt;
-               Dlgt.Invoke(ThreadSafe, ErrorEncountered, this,
-                                new SocketErrorEventArgs("processConnection(o)", xpt));
             }
         }
 
@@ -331,56 +367,81 @@ namespace LittleUmph.Net.Components
         {
             try
             {
-                bool exit = false;
+                bool clientDisconnected = false;
 
-                while (!exit)
+                while (recv.Connected && !clientDisconnected)
                 {
-                    string result = "";
-                    byte[] buffer = new byte[4096];
-                    int lenRecv;
-                    while ((lenRecv = recv.Receive(buffer)) > 0)
+                    if (!Listening)
                     {
-                        result += Encoding.UTF8.GetString(buffer, 0, lenRecv);
+                        return;
+                    }
 
-                        if (recv.Available == 0)
+                    // Connected but there is no data to receive
+                    if (recv.Available == 0)
+                    {
+                        // Connection on the otherside is disconnected (mean while recv.Connected has not been updated)
+                        // When Available==0, Then Poll() will return true if the connection has been closed, reset, or terminated; 
+                        // REF: http://msdn.microsoft.com/en-us/library/system.net.sockets.socket.poll%28v=vs.110%29.aspx
+                        // Available==0 AND Poll()==true  ==>> Client is DISCONNECTED
+                        if (recv.Poll(1000, SelectMode.SelectRead))
                         {
-                            break;
+                            // In-case available changed during the poll
+                            if (recv.Available == 0)
+                            {
+                                clientDisconnected = true;
+                                break;
+                            }
+                        }
+
+                        Thread.Sleep(100);
+                    }
+                    else
+                    {
+                        clientDisconnected = false;
+
+                        string result = "";
+                        byte[] buffer = new byte[4096];
+                        int lenRecv;
+
+                        while ((lenRecv = recv.Receive(buffer)) > 0)
+                        {
+                            if (!Listening)
+                            {
+                                return;
+                            }
+
+                            result += Encoding.UTF8.GetString(buffer, 0, lenRecv);
+
+                            if (recv.Available == 0)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (result.Length > 0)
+                        {
+                            Dlgt.Invoke(ThreadSafe, DataReceived, this,
+                                         new SocketDataEventArgs(recv, address, portUsed, result));
                         }
                     }
+                }
 
-                    if (result.Length > 0)
-                    {
-                       Dlgt.Invoke(ThreadSafe, DataReceived, this,
-                                    new SocketDataEventArgs(recv, address, portUsed, result));
-                    }
+                if (!recv.Connected || clientDisconnected)
+                {
+                    Dlgt.Invoke(ThreadSafe, ClientDisconnected, this,
+                                 new SocketEventArgs(recv, address, portUsed));
 
-                    if (!recv.Connected || lenRecv == 0)
-                    {
-                       Dlgt.Invoke(ThreadSafe, ClientDisconnected, this,
-                                    new SocketEventArgs(recv, address, portUsed));
-
-                        recv.Shutdown(SocketShutdown.Both);
-                        recv.Disconnect(false);
-                        recv.Close();
-                        recv = null;
-
-                        exit = true;
-                    }
-                    else if (!PersistConnection)
-                    {
-                        // This initiates the shutdown
-                        // will cause the while loop to exit on the next count
-                        recv.Shutdown(SocketShutdown.Receive);
-
-                        // Note to self: do not exit the while loop here
-                    }
+                    recv.Shutdown(SocketShutdown.Both);
+                    recv.Disconnect(false);
+                    recv.Close();
+                    recv = null;
                 }
             }
             catch (Exception xpt)
             {
                 Console.WriteLine(xpt.Message);
-               Dlgt.Invoke(ThreadSafe, ErrorEncountered, this,
-                                new SocketErrorEventArgs("processConnection()", xpt));
+                Dlgt.Invoke(ThreadSafe, ErrorEncountered, this,
+                                 new SocketErrorEventArgs("processConnection()", xpt));
             }
         }
         #endregion
@@ -393,7 +454,7 @@ namespace LittleUmph.Net.Components
         {
             try
             {
-                _listeningThread.Abort();                
+                AbortThread();
             }
             catch (Exception xpt)
             {
@@ -411,12 +472,38 @@ namespace LittleUmph.Net.Components
 
         public void EndInit()
         {
-            if (AutoStart)
+            if (!DesignMode)
             {
-                StartListening();
+                if (AutoStart)
+                {
+                    StartListening();
+                }
             }
         }
         #endregion
+
+
+        public bool Send(Socket socket, string data)
+        {
+            if (socket.Connected)
+            {
+                try
+                {
+                    var payload = Encoding.UTF8.GetBytes(data);
+                    int dataSent = socket.Send(payload);
+
+                    return payload.Length == dataSent;
+                }
+                catch (Exception xpt)
+                {
+                    LastException = xpt;
+                    Dlgt.Invoke(ThreadSafe, ErrorEncountered, this,
+                                     new SocketErrorEventArgs("Send()", xpt));
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     #region [ Public Delegates ]
