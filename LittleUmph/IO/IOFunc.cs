@@ -684,6 +684,11 @@ namespace LittleUmph
             return ms;
         }
 
+        /// <summary>
+        /// Streams to bytes.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <returns></returns>
         public static byte[] StreamToBytes(Stream stream)
         {
             stream.Position = 0;
@@ -705,6 +710,26 @@ namespace LittleUmph
                 }
             }
             return result.ToArray();
+        }
+
+        /// <summary>
+        /// Save streams to a file.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="targetPath">The target path.</param>
+        public static void StreamToFile(Stream stream, string targetPath)
+        {
+            using (var fs = File.OpenWrite(targetPath))
+            {
+                byte[] buffer = new byte[4096];
+                int len = 0;
+                while ((len = stream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    fs.Write(buffer, 0, len);
+                }
+
+                fs.Flush();
+            }
         }
         #endregion
 
@@ -2498,7 +2523,8 @@ namespace LittleUmph
             }
 
         }
-        
+
+
     }
 
 
