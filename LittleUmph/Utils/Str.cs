@@ -310,6 +310,7 @@ namespace LittleUmph
                 camelString = char.ToUpper(camelString[0]) + camelString.Substring(1);
             }
 
+            camelString = Regex.Replace(camelString, @" +", " ");
             return camelString.Trim();
         }
 
