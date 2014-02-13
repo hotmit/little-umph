@@ -185,6 +185,31 @@ namespace LittleUmph
         }
         #endregion 
 
+        #region [ RichTextbox ]
+        /// <summary>
+        /// Move cursor to specified index.
+        /// </summary>
+        /// <param name="richtextbox">The richtextbox.</param>
+        /// <param name="index">The index.</param>
+        /// <param name="focus">if set to <c>true</c> [focus].</param>
+        public static void ScrollTo(RichTextBox richtextbox, int index, bool focus)
+        {
+            // out of bound
+            if (richtextbox.TextLength <= index)
+            {
+                return;
+            }
+
+            richtextbox.SelectionStart = index;
+            richtextbox.SelectionLength = 0;
+
+            if (focus)
+            {
+                richtextbox.Focus();
+            }
+        }
+        #endregion
+
         #region [ Disable Close Button ]
         /// <summary>
         /// Disables the close button.
@@ -710,7 +735,7 @@ namespace LittleUmph
         /// <param name="listbox">The listbox.</param>
         /// <param name="offset">The offset (if this is set to 2 it will jumb 2 spaces).</param>
         /// <param name="loop">if set to <c>true</c> [loop].</param>
-        public static void MoveUpTheList(ListBox listbox, int offset, bool loop)
+        public static void MoveUpTheList(ListBox listbox, int offset = 1, bool loop = true)
         {
             int count = listbox.Items.Count;
 
@@ -793,7 +818,7 @@ namespace LittleUmph
         /// <param name="listbox">The listbox.</param>
         /// <param name="offset">The offset, how many step to jump when the key is pressed (default is 1).</param>
         /// <param name="loop">if set to <c>true</c> [loop].</param>
-        public static void MoveDownTheList(ListBox listbox, int offset, bool loop)
+        public static void MoveDownTheList(ListBox listbox, int offset = 1, bool loop = true)
         {
             int count = listbox.Items.Count;
 
@@ -829,7 +854,7 @@ namespace LittleUmph
         /// <param name="listview">The listview.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="loop">if set to <c>true</c> [loop].</param>
-        public static void MoveUpTheList(ListView listview, int offset, bool loop)
+        public static void MoveUpTheList(ListView listview, int offset = 1, bool loop = true)
         {
             int count = listview.Items.Count;
 
@@ -865,7 +890,7 @@ namespace LittleUmph
         /// <param name="listview">The listview.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="loop">if set to <c>true</c> [loop].</param>
-        public static void MoveDownTheList(ListView listview, int offset, bool loop)
+        public static void MoveDownTheList(ListView listview, int offset = 1, bool loop = true)
         {
             int count = listview.Items.Count;
 
