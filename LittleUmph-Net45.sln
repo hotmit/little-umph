@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LittleUmph-Net45 Metro", "LittleUmph\LittleUmph-Net45 Metro.csproj", "{A7212359-F08E-4261-BBA3-F0C039745BE2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LittleUmph-Net45", "LittleUmph\LittleUmph-Net45.csproj", "{A7212359-F08E-4261-BBA3-F0C039745BE2}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution

@@ -7,6 +7,8 @@ namespace LittleUmph
     #if NET20
     public delegate void Action();
     public delegate void Action<T>(T arr);
+
+    public delegate TReturn Func<TInput,TReturn>(TInput input);
     #endif
 
     /// <summary>

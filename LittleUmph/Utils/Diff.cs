@@ -64,6 +64,7 @@ namespace LittleUmph
         /// <returns></returns>
         public static int WordContains(string haystack, string needle)
         {
+#if NET35_OR_GREATER
             string[] hWords = getWords(haystack);
             string[] needles = getWords(needle);
 
@@ -77,6 +78,9 @@ namespace LittleUmph
                 }
             }
             return count;
+#else
+            throw new NotImplementedException("Only support framework 3.5+");
+#endif
         }
 
         /// <summary>

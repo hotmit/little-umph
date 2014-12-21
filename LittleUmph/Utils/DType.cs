@@ -7,7 +7,6 @@ using System.Drawing;
 using System.Xml;
 using System.ComponentModel;
 using System.Reflection;
-using System.Linq;
 
 namespace LittleUmph
 {
