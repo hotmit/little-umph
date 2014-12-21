@@ -2,6 +2,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+#if NET35_OR_GREATER
+using System.Linq;
+#endif
 
 namespace LittleUmpTest
 {
@@ -48,7 +51,7 @@ namespace LittleUmpTest
         public void AddTestNonFlagEnum()
         {
             E resultAb = Enm.Add(E.A, E.B);
-            Assert.IsFalse(Enm.ToList<E>().Contains(resultAb));
+            Assert.IsFalse(Enm.GetList<E>().Contains(resultAb));
         }
 
         [TestMethod()]

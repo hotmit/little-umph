@@ -7,6 +7,9 @@ using System.Drawing;
 using System.Xml;
 using System.ComponentModel;
 using System.Reflection;
+#if NET35_OR_GREATER
+using System.Linq;
+#endif
 
 namespace LittleUmph
 {
@@ -596,13 +599,16 @@ namespace LittleUmph
         {
             Type srcType = o.GetType();
             var methods = destinationType.GetMethods(BindingFlags.Public | BindingFlags.Static);
-            foreach (MethodInfo method in methods.Where(m => m.Name == methodName))
+            foreach (var method in methods)
             {
-                var parameters = method.GetParameters();
-                if (parameters.Count() == 1 &&
-                    parameters[0].ParameterType == o.GetType())
+                if (method.Name == methodName)
                 {
-                    return method;
+                    var parameters = method.GetParameters();
+                    if (parameters.Length == 1 &&
+                        parameters[0].ParameterType == o.GetType())
+                    {
+                        return method;
+                    }
                 }
             }
             return null;

@@ -23,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET40;NET40_OR_GREATER;NET35_OR_GREATER;</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET35_OR_GREATER; NET40; NET40_OR_GREATER;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>

@@ -1,7 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
+//using System.Collections.Concurrent;
 using System.Collections.Generic;
+#if NET35_OR_GREATER
 using System.Linq;
+#endif
 using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -241,11 +243,15 @@ namespace LittleUmph.Media
             {
                 UnLock();
             }
-
+                        
+#if NET35_OR_GREATER
             Dictionary<Color, int> result = frequency.OrderByDescending(d => d.Value)
                                                         .Take(40)
                                                         .ToDictionary(d => d.Key, d => d.Value);
             return result;
+#else
+            throw new NotSupportedException("Only for framework with LINQ.");
+#endif
         }
 
         /// <summary>
@@ -257,13 +263,14 @@ namespace LittleUmph.Media
         public Color GetDominantColor(int rounding = 50, int sampleSize = 10000)
         {
             Dictionary<Color, int> pallette = GetPallette(rounding, sampleSize);
-            KeyValuePair<Color, int> first = pallette.FirstOrDefault();
 
-            if (!first.Equals(default(KeyValuePair<Color, int>)))
+            if (pallette.Count > 0)
             {
-                return first.Key;
+                foreach (KeyValuePair<Color, int> first in pallette)
+                {
+                    return first.Key;
+                }
             }
-
             return Color.Empty;
         }
     }

@@ -2515,7 +2515,7 @@ namespace LittleUmph
 
             foreach (var ext in extList)
             {
-                string path = Path.Combine(file.Directory.FullName, name, ext);
+                string path = Path.Combine(file.Directory.FullName, name + ext);
                 if (File.Exists(path))
                 {
                     Rename(new FileInfo(path), newName + ext);

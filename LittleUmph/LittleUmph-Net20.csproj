@@ -111,6 +111,8 @@
     <Compile Include="IO\RegWriter.cs" />
     <Compile Include="IO\XMLSaver.cs" />
     <Compile Include="JTools\JTool.cs" />
+    <Compile Include="Media\LbBitmap.cs" />
+    <Compile Include="Media\LbBox.cs" />
     <Compile Include="Media\Player.cs" />
     <Compile Include="Net\Fetcher.cs" />
     <Compile Include="Net\QNet.cs" />
@@ -136,6 +138,9 @@
     </Compile>
     <Compile Include="Utils\Arr.cs" />
     <Compile Include="Tools\BenchMark.cs" />
+    <Compile Include="Utils\Clr.cs" />
+    <Compile Include="Utils\ColorSpaces\Lab.cs" />
+    <Compile Include="Utils\ColorSpaces\Xyz.cs" />
     <Compile Include="Utils\Conversions\Bin.cs" />
     <Compile Include="Utils\Conversions\ByteArr.cs" />
     <Compile Include="Utils\Chr.cs" />
@@ -144,7 +149,6 @@
     <Compile Include="Utils\Dlgt.cs" />
     <Compile Include="Utils\DTime.cs" />
     <Compile Include="Utils\Evt.cs" />
-    <Compile Include="Utils\Clor.cs" />
     <Compile Include="Utils\Conversions\Hex.cs" />
     <Compile Include="Utils\Img.cs" />
     <Compile Include="Utils\Ascii.cs" />
@@ -162,8 +166,6 @@
     <Content Include="Images\LEDOff.png" />
     <Content Include="Images\LEDOn.png" />
     <Content Include="Library.ico" />
-    <Content Include="LittleUmph-Net35.csproj" />
-    <Content Include="LittleUmph-Net40.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Lib\" />

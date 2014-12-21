@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+#if NET35_OR_GREATER
+using System.Linq;
+#endif
 
 namespace LittleUmph
 {
@@ -88,7 +91,11 @@ namespace LittleUmph
         {
             get
             {
-                long ticks = Trials.Sum();
+                long ticks = 0;
+                foreach (var t in Trials)
+                {
+                    ticks += t;
+                }
                 return new TimeSpan(ticks);
             }
         }
@@ -103,7 +110,7 @@ namespace LittleUmph
         {
             get
             {
-                var average = Total.Ticks / Trials.Count();
+                var average = Total.Ticks / Trials.Count;
                 return new TimeSpan(average);
             }
         }
@@ -118,7 +125,14 @@ namespace LittleUmph
         {
             get
             {
-                long ticks = Trials.Min();
+                long ticks = 0;
+                foreach (var t in Trials)
+                {
+                    if (t < ticks)
+                    {
+                        ticks = t;
+                    }
+                }
                 return new TimeSpan(ticks);
             }
         }
@@ -133,7 +147,14 @@ namespace LittleUmph
         {
             get
             {
-                long ticks = Trials.Max();
+                long ticks = 0;
+                foreach (var t in Trials)
+                {
+                    if (t > ticks)
+                    {
+                        ticks = t;
+                    }
+                }
                 return new TimeSpan(ticks);
             }
         }
@@ -151,7 +172,7 @@ namespace LittleUmph
                 long endTime = _endTime == 0 ? DateTime.Now.Ticks : _endTime;
                 long diff = endTime - _startTime;
                 TimeSpan timeSpan = new TimeSpan(diff);
-                return Trials.Count() / (double)timeSpan.TotalSeconds;
+                return Trials.Count / (double)timeSpan.TotalSeconds;
             }
         }
 

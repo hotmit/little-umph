@@ -24,7 +24,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET35_OR_GREATER; NET40; NET40_OR_GREATER;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -54,21 +54,6 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="xunit">
-      <HintPath>..\..\Batch Renamer\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.extensions">
-      <HintPath>..\..\Batch Renamer\packages\xunit.extensions.1.9.1\lib\net20\xunit.extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.runner.msbuild">
-      <HintPath>..\..\Batch Renamer\packages\xunit.1.9.1\lib\net20\xunit.runner.msbuild.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.runner.tdnet">
-      <HintPath>..\..\Batch Renamer\packages\xunit.1.9.1\lib\net20\xunit.runner.tdnet.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.runner.utility">
-      <HintPath>..\..\Batch Renamer\packages\xunit.1.9.1\lib\net20\xunit.runner.utility.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDependentAssemblyPaths Condition=" '$(VS100COMNTOOLS)' != '' " Include="$(VS100COMNTOOLS)..\IDE\PrivateAssemblies">
