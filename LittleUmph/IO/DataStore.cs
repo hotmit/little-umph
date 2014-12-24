@@ -986,7 +986,11 @@ namespace LittleUmph
                 else if (obj is ComboBox)
                 {
                     ComboBox c = (ComboBox)obj;
-                    c.SelectedIndex = Get(c.Name, -1);
+                    var index = Get(c.Name, -1);
+                    if (index < c.Items.Count)
+                    {
+                        c.SelectedIndex = index;
+                    }
                 }
                 else if (obj is ListBox)
                 {

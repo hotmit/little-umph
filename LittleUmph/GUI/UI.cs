@@ -930,7 +930,7 @@ namespace LittleUmph
         /// <param name="control">The control.</param>
         public static void ShowContext(ContextMenuStrip contextMenu, Control control)
         {
-            contextMenu.Show(control.Parent, new Point(control.Location.X + 10, control.Location.Y + 10 - contextMenu.Height));
+            contextMenu.Show(control.Parent, new Point(control.Location.X, control.Location.Y - 25 - contextMenu.Height));
         }
         #endregion
 
