@@ -36,6 +36,16 @@ namespace LittleUmph
             return Invoke(false, theEvent, args);
         }
 
+        public static void Invoke(Control control, Action action)
+        {
+            if (control.InvokeRequired)
+            {
+                control.Invoke(action);
+                return;
+            }
+            action.Invoke();
+        }
+
         /// <summary>
         /// Invokes the event.
         /// </summary>

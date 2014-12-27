@@ -303,5 +303,10 @@ namespace LittleUmph
             }
         }
         #endregion
+
+        public static Bitmap FromWeb(string url)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
