@@ -9,7 +9,9 @@ using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.Drawing;
 using System.IO;
+#if !NET20
 using System.Linq;
+#endif
 
 namespace LittleUmph.GUI.Components
 {

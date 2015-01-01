@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+#if !NET20
 using System.Linq;
+#endif
 using System.Text;
 using System.Runtime.InteropServices;
 

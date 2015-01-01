@@ -47,10 +47,14 @@ namespace LittleUmph
         /// <typeparam name="T"></typeparam>
         public static List<T> GetList<T>()
         {
+#if !NET20
             EnumCheck<T>();
 
             List<T> list = Enum.GetValues(typeof(T)).Cast<T>().ToList();
             return list;
+#else
+            throw new NotSupportedException("Only support .Net 3.5 and higher");
+#endif
         }
         #endregion
 

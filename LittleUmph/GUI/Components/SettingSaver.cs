@@ -89,6 +89,7 @@ namespace LittleUmph.GUI.Components
         /// </summary>
         [Category("[ SettingSaver ]")]
         [Description("Where to save the setting file.")]
+        [DefaultValue(SaveLocation.CurrentFolder)]
         public SaveLocation SaveLocation { get; set; }
         #endregion
 

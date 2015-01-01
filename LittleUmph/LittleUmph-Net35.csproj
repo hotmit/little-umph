@@ -58,17 +58,36 @@
     <Compile Include="ASync\BackOffPattern.cs" />
     <Compile Include="ASync\ChronoTask.cs" />
     <Compile Include="ASync\FormTimer.cs" />
+    <Compile Include="ASync\SpreadPattern.cs" />
     <Compile Include="ASync\SystemTimer.cs" />
     <Compile Include="ASync\ThreadTimer.cs" />
     <Compile Include="Barcode\CheckDigit.cs" />
     <Compile Include="DB\GlobalConfig.cs" />
     <Compile Include="DB\QuickDb.cs" />
     <Compile Include="Gs.cs" />
+    <Compile Include="GUI\Components\DropCatcher.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="GUI\Components\DropCatcher.designer.cs">
+      <DependentUpon>DropCatcher.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUI\Components\FormMover.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="GUI\Components\FormMover.designer.cs">
       <DependentUpon>FormMover.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\Components\IdleWatch.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="GUI\Components\IdleWatch.Designer.cs">
+      <DependentUpon>IdleWatch.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\Components\SettingSaver.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="GUI\Components\SettingSaver.Designer.cs">
+      <DependentUpon>SettingSaver.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\Controls\LED.cs">
       <SubType>UserControl</SubType>
@@ -79,7 +98,7 @@
     <Compile Include="GUI\Forms\FrmInput.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GUI\Forms\FrmInput.designer.cs">
+    <Compile Include="GUI\Forms\FrmInput.Designer.cs">
       <DependentUpon>FrmInput.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\PrnPrint.cs" />
@@ -110,6 +129,7 @@
     <Compile Include="Helper\NaturalSortComparer.cs" />
     <Compile Include="IO\DataStore.cs" />
     <Compile Include="IO\ELog.cs" />
+    <Compile Include="IO\FileLine.cs" />
     <Compile Include="IO\IOFunc.cs" />
     <Compile Include="IO\SystemPath.cs" />
     <Compile Include="IO\RegWriter.cs" />
@@ -140,9 +160,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Tools\Benchmark.cs" />
     <Compile Include="Utils\Arr.cs" />
-    <Compile Include="Tools\BenchMark.cs" />
-    <Compile Include="Utils\Clr.cs" />
     <Compile Include="Utils\ColorSpaces\Lab.cs" />
     <Compile Include="Utils\ColorSpaces\Xyz.cs" />
     <Compile Include="Utils\Conversions\Bin.cs" />
@@ -152,7 +171,9 @@
     <Compile Include="Utils\Diff.cs" />
     <Compile Include="Utils\Dlgt.cs" />
     <Compile Include="Utils\DTime.cs" />
+    <Compile Include="Utils\Enm.cs" />
     <Compile Include="Utils\Evt.cs" />
+    <Compile Include="Utils\Clr.cs" />
     <Compile Include="Utils\Conversions\Hex.cs" />
     <Compile Include="Utils\Img.cs" />
     <Compile Include="Utils\Ascii.cs" />
@@ -160,6 +181,7 @@
     <Compile Include="Tools\Serializer.cs" />
     <Compile Include="Tools\SimpleEncryption.cs" />
     <Compile Include="Utils\Str.cs" />
+    <Compile Include="Utils\Strm.cs" />
     <Compile Include="Utils\Tmr.cs" />
     <Compile Include="Utils\U.cs" />
     <Compile Include="Utils\DType.cs" />
@@ -175,6 +197,9 @@
     <Folder Include="Lib\" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="GUI\Components\IdleWatch.resx">
+      <DependentUpon>IdleWatch.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GUI\Controls\LED.resx">
       <DependentUpon>LED.cs</DependentUpon>
     </EmbeddedResource>
