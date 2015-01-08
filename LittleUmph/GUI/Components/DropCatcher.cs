@@ -18,7 +18,6 @@ namespace LittleUmph.GUI.Components
     [ToolboxBitmap(typeof(DropCatcher), "Images.DropCatcher.png")]
     public partial class DropCatcher : Component, ISupportInitialize
     {
-
         /// <summary>
         /// 
         /// </summary>
@@ -49,6 +48,12 @@ namespace LittleUmph.GUI.Components
         /// <param name="files">The files.</param>
         public delegate void FilesAndDirectoriesDroppedWithRootHandler(DirectoryInfo root, DirectoryInfo[] dirs, FileInfo[] files);
 
+        /// <summary>
+        /// Catch href links drop
+        /// </summary>
+        /// <param name="links">The links.</param>
+        public delegate void LinksDroppedHandler(string[] links);
+
         [Category("[ File Handler ]")]
         [Description("Get the first file drop.")]
         public event SingleFileDroppedHandler SingleFileDropped;
@@ -64,14 +69,17 @@ namespace LittleUmph.GUI.Components
         [Description("Get a list of directories from the drop.")]
         public event DirectoriesDroppedHandler DirectoriesDropped;
 
-        [Category("[ Both Files & Directories ]")]
+        [Category("[ Both Files && Directories ]")]
         [Description("Get both files and directories from the drop.")]
         public event FilesAndDirectoriesDroppedHandler FilesAndDirectoriesDropped;
         
-        [Category("[ Both Files & Directories ]")]
+        [Category("[ Both Files && Directories ]")]
         [Description("Get both files and directories from the drop. Also provide root folder.")]
         public event FilesAndDirectoriesDroppedWithRootHandler FilesAndDirectoriesDroppedWithRoot;
 
+        [Category("[ Links ]")]
+        [Description("Extract links from dropped contents")]
+        public event LinksDroppedHandler LinksDropped;
 
         #region [ Private Variables ]
         private Form _FormDrop;
@@ -212,8 +220,10 @@ namespace LittleUmph.GUI.Components
             c.AllowDrop = true;
             c.DragEnter += DropContainer_DragEnter;
             c.DragDrop += DropContainer_DragDrop;
-        }
+        }    
+        #endregion
 
+        #region [ Drop Handler]
         void DropContainer_DragEnter(object sender, DragEventArgs e)
         {
             if (!AllowDrop)
@@ -225,11 +235,15 @@ namespace LittleUmph.GUI.Components
             {
                 e.Effect = DragDropEffects.Copy;
             }
-            else 
+            else if (e.Data.GetDataPresent("UniformResourceLocator"))
             {
-                e.Effect = DragDropEffects.None;
+                e.Effect = DragDropEffects.Link;
             }
-        }
+            else
+            {
+                e.Effect = DragDropEffects.All;
+            }
+        }    
 
         void DropContainer_DragDrop(object sender, DragEventArgs e)
         {
@@ -238,6 +252,23 @@ namespace LittleUmph.GUI.Components
                 return;
             }
 
+            if (e.Effect == DragDropEffects.Copy)
+            {
+                ExtractFilesAndDirs(e);
+            }
+            else if (e.Effect == DragDropEffects.Link || 
+                e.Effect == DragDropEffects.All)
+            {
+                var links = UI.GetDropLinks(e);
+
+                Tmr.Run(() => {
+                    Dlgt.Invoke(LinksDropped, (object)links.ToArray());
+                }, 10);
+            }
+        }
+
+        private void ExtractFilesAndDirs(DragEventArgs e)
+        {
             string[] path = (string[])e.Data.GetData(DataFormats.FileDrop);
 
             List<DirectoryInfo> dirs = new List<DirectoryInfo>();
@@ -308,7 +339,7 @@ namespace LittleUmph.GUI.Components
             }
 
             return null;
-        }
+        } 
         #endregion
     }
 }

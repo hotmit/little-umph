@@ -14,7 +14,7 @@ namespace LittleUmph
     /// String manipulation and validation methods.
     /// </summary>
     public class Str
-    {        
+    {
         #region [ Number Detection ]
         /// <summary>
         /// Check if the string is a valid integer
@@ -407,7 +407,7 @@ namespace LittleUmph
 
             return false;
         }
-        
+
 
         /// <summary>
         /// Case insensitive string comparision
@@ -530,7 +530,7 @@ namespace LittleUmph
             for (i = str.Length - 1; i >= 0; i--)
             {
                 if (!Char.IsPunctuation(str[i]))
-                {                    
+                {
                     break;
                 }
             }
@@ -879,7 +879,7 @@ namespace LittleUmph
         {
             return DoubleVal(control.Text, defaultValue);
         }
-        #endregion        
+        #endregion
 
         #region [ SubCount ]
         /// <summary>
@@ -908,7 +908,7 @@ namespace LittleUmph
             str = str.Substring(startIndex);
             return SubCount(str, subStr);
         }
-        #endregion        
+        #endregion
 
         #region [ MaxLength ]
         /// <summary>
@@ -1121,6 +1121,28 @@ namespace LittleUmph
 
             search = Regex.Escape(search);
             return Regex.Replace(text, search, replace, RegexOptions.IgnoreCase);
+        }
+        #endregion
+
+        #region [ Links ]
+        /// <summary>
+        /// Extracts the links.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <returns></returns>
+        public static List<string> ExtractLinks(string text)
+        {
+            var list = new List<string>();
+            MatchCollection matches = Regex.Matches(text, @"(http|https|ftp)[^\s\]""'<>]+");
+            foreach (Match m in matches)
+            {
+                var link = WebTools.UrlDecode(m.Value);
+                if (!list.Contains(link))
+                {
+                    list.Add(link);
+                }
+            }
+            return list;
         }
         #endregion
     }

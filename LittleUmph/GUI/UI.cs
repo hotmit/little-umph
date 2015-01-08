@@ -488,7 +488,7 @@ namespace LittleUmph
         {
             string text = GetDragDropText(e);
             // Firefox format
-            Match m = Regex.Match(text, @"(?<=href=['""])(http|https|ftp)[^\s\)\]""']+");
+            Match m = Regex.Match(text, @"(?<=href=['""])(http|https|ftp)[^\s\]""'<>]+");
 
             // If the ideal sitution above failed, then use this more generic one
             if (!m.Success)
@@ -514,7 +514,7 @@ namespace LittleUmph
             List<string> list = new List<string>();
             string link;
 
-            MatchCollection matches = Regex.Matches(text, @"(http|https|ftp)[^\s\)\]""']+");
+            MatchCollection matches = Regex.Matches(text, @"(http|https|ftp)[^\s\]""'<>]+");
             foreach (Match m in matches)
             {
                 link = WebTools.UrlDecode(m.Value);

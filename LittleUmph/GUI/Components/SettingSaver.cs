@@ -109,6 +109,7 @@ namespace LittleUmph.GUI.Components
         public SettingSaver(IContainer container)
         {
             SaveFormLocation = true;
+            SaveLocation = SaveLocation.CurrentFolder;
 
             if (container != null)
             {

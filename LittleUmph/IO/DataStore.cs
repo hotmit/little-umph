@@ -881,8 +881,20 @@ namespace LittleUmph
         /// <returns>Winform TopMost</returns>
         public bool LoadFormTopMost(Form winform, bool defaultTopMost = false)
         {
-            bool topMost = Get(winform.Name + "_TopMost", defaultTopMost);
+            var topMost = GetFormTopMost(winform, defaultTopMost);
             winform.TopMost = topMost;
+            return topMost;
+        }
+
+        /// <summary>
+        /// Gets the form top most of the setting saved for the specified form.
+        /// </summary>
+        /// <param name="winform">The winform.</param>
+        /// <param name="defaultTopMost">if set to <c>true</c> [default top most].</param>
+        /// <returns></returns>
+        public bool GetFormTopMost(Form winform, bool defaultTopMost = false)
+        {
+            bool topMost = Get(winform.Name + "_TopMost", defaultTopMost);
             return topMost;
         }
         #endregion

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-#if NET35_OR_GREATER
+#if !NET20
 using System.Linq;
 #endif
 
