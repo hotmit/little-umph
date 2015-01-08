@@ -36,16 +36,6 @@ namespace LittleUmph
             return Invoke(false, theEvent, args);
         }
 
-        public static void Invoke(Control control, Action action)
-        {
-            if (control.InvokeRequired)
-            {
-                control.Invoke(action);
-                return;
-            }
-            action.Invoke();
-        }
-
         /// <summary>
         /// Invokes the event.
         /// </summary>
@@ -94,5 +84,22 @@ namespace LittleUmph
             }
         }
         #endregion
+
+
+        /// <summary>
+        /// Invokes the specified method on the control c (Threadsafe).
+        /// </summary>
+        /// <param name="c">The control to invoke on (can be a form).</param>
+        /// <param name="method">The method.</param>
+        public static void Invoke(Control c, Action method)
+        {
+            if (c.InvokeRequired)
+            {
+                c.Invoke(new MethodInvoker(method));
+                return;
+            }
+
+            method.Invoke();
+        }
     }
 }
