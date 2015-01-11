@@ -76,6 +76,13 @@ namespace LittleUmph.GUI.Components
         public CheckBox TopMostCheckBox { get; set; }
 
         /// <summary>
+        /// The top most menu checkbox.
+        /// </summary>
+        [Category("[ SettingSaver - Top Most ]")]
+        [Description("The top most menu checkbox.")]
+        public ToolStripMenuItem TopMostMenuItem { get; set; }
+
+        /// <summary>
         /// Gets or sets the XML saver.
         /// </summary>
         /// <value>
@@ -216,6 +223,19 @@ namespace LittleUmph.GUI.Components
                     TopMostCheckBox.CheckedChanged += (s, evt) =>
                     {
                         Form.TopMost = TopMostCheckBox.Checked;
+                        _spread.Execute(() =>
+                        {
+                            DataStore.SaveFormTopMost(Form);
+                        }, true);
+                    };
+                }
+
+                if (TopMostMenuItem != null)
+                {
+                    TopMostMenuItem.Checked = Form.TopMost;
+                    TopMostMenuItem.CheckedChanged += (s, evt) =>
+                    {
+                        Form.TopMost = TopMostMenuItem.Checked;
                         _spread.Execute(() =>
                         {
                             DataStore.SaveFormTopMost(Form);
