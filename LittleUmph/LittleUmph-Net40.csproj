@@ -182,6 +182,7 @@
     <Compile Include="Utils\Num.cs" />
     <Compile Include="Tools\Serializer.cs" />
     <Compile Include="Tools\SimpleEncryption.cs" />
+    <Compile Include="Utils\Obj.cs" />
     <Compile Include="Utils\Str.cs" />
     <Compile Include="Utils\Strm.cs" />
     <Compile Include="Utils\Tmr.cs" />

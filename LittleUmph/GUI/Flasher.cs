@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace LittleUmph
 {
@@ -8,66 +10,72 @@ namespace LittleUmph
     /// </summary>
     public class Flasher
     {
-        ///// <summary>
-        ///// Flash the control 
-        ///// </summary>
-        ///// <param name="c"></param>
-        ///// <param name="color"></param>
-        ///// <param name="flashCount"></param>
-        ///// <param name="interval"></param>
-        ///// <returns>You can use the timer to stop the loop, 
-        ///// however when the count lapses the timer will be dispose 
-        ///// automatically by this function</returns>
-        //public static Timer Flash(Control c, Color color, int flashCount, int interval)
-        //{            
-        //    DynamicObject doc = new DynamicObject(
-        //            "Control", c,
-        //            "Color", Color.FromArgb(80, color)
-        //        );
+        private static Dictionary<Control, Timer> _timerList = new Dictionary<Control, Timer>();
 
-        //    return FTimer.ExecuteOnAnInterval(flash_Tick, doc, (flashCount-1) * 2, interval, true);
-        //}
+        /// <summary>
+        /// Flash a transparent overlay over the control.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="color"></param>
+        /// <param name="flashCount"></param>
+        /// <param name="interval"></param>
+        public static void Flash(Control c, Color color, int flashCount=1, int interval=150)
+        {
+            if (_timerList.ContainsKey(c))
+            {
+                ClearFlash(c);
+            }
 
-        ///// <summary>
-        ///// Flash twice at 120ms interval
-        ///// </summary>
-        ///// <param name="c"></param>
-        ///// <param name="color"></param>
-        ///// <returns></returns>
-        //public static Timer Flash(Control c, Color color)
-        //{
-        //    return Flash(c, color, 2, 120);
-        //}
+            int currentCount = 0;
+            flashCount *= 2;
+            Brush brush = new SolidBrush(Color.FromArgb(80, color));
+
+            var tmr = new Timer();
+
+            tmr.Interval = interval;
+            tmr.Tick += (o, e) =>
+            {
+                if (!_timerList.ContainsKey(c))
+                {
+                    c.Invalidate();
+                    return;
+                }
+
+                // Paint the color over the control
+                if (currentCount % 2 == 0)
+                {
+                    Graphics g = c.CreateGraphics();                    
+                    g.FillRectangle(brush, 0, 0, c.Width, c.Height);
+                }
+                else
+                {
+                    // Clear the painted layer
+                    c.Invalidate();
+                }
+
+                currentCount++;
+
+                if (currentCount > flashCount)
+                {
+                    Flasher.ClearFlash(c);
+                }
+            };
+            _timerList[c] = tmr;
+            tmr.Start();
+        }
+
+        public static void ClearFlash(Control c)
+        {
+            if (_timerList.ContainsKey(c))
+            {
+                var tmr = _timerList[c];
+                _timerList.Remove(c);
+
+                c.Invalidate();
+                tmr.Stop();
+                tmr.Dispose();
+            }
+        }
         
-        ///// <summary>
-        ///// Assisted function for "Flash" function
-        ///// </summary>
-        ///// <param name="doc"></param>
-        //private static void flash_Tick(DynamicObject doc)
-        //{
-        //    Timer tmr = doc.Get<Timer>("Timer", null);
-        //    Control c = doc.VCtrl("Control");
-        //    if (tmr == null)
-        //    {
-        //        c.Invalidate();
-        //        return;
-        //    }
-
-        //    // Paint the color over the control
-        //    if (doc.VInt("CurrentCount") % 2 == 0)
-        //    {
-        //        Graphics g = c.CreateGraphics();
-        //        Color color = doc.Get<Color>("Color", Color.Red);
-        //        Brush brush = new SolidBrush(color);
-                
-        //        g.FillRectangle(brush, 0, 0, c.Width, c.Height);
-        //    }                
-        //    else
-        //    {
-        //        // Clear the painted layer
-        //        c.Invalidate();
-        //    }
-        //}
-
     }
 }
