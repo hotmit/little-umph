@@ -215,11 +215,11 @@ namespace LittleUmph.GUI.Components
 
             if (SaveTopMost)
             {
-                DataStore.LoadFormTopMost(Form, false);
+                var topMost = DataStore.LoadFormTopMost(Form, false);
 
                 if (TopMostCheckBox != null)
                 {
-                    TopMostCheckBox.Checked = Form.TopMost;
+                    TopMostCheckBox.Checked = topMost;
                     TopMostCheckBox.CheckedChanged += (s, evt) =>
                     {
                         Form.TopMost = TopMostCheckBox.Checked;
@@ -232,7 +232,7 @@ namespace LittleUmph.GUI.Components
 
                 if (TopMostMenuItem != null)
                 {
-                    TopMostMenuItem.Checked = Form.TopMost;
+                    TopMostMenuItem.Checked = topMost;
                     TopMostMenuItem.CheckedChanged += (s, evt) =>
                     {
                         Form.TopMost = TopMostMenuItem.Checked;
@@ -242,6 +242,11 @@ namespace LittleUmph.GUI.Components
                         }, true);
                     };
                 }
+
+                Tmr.Run(() =>
+                {
+                    Form.TopMost = topMost;
+                }, 10);
             }
         }
         #endregion
