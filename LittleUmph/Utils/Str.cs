@@ -1066,6 +1066,14 @@ namespace LittleUmph
             return str.Split(separators, opt);
         }
 
+        /// <summary>
+        /// Splits and return the value at the specified index.
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <param name="separator">The separator.</param>
+        /// <param name="index">The index.</param>
+        /// <param name="count">The count.</param>
+        /// <returns></returns>
         public static string SplitIndex(string str, string separator, int index, int count = 0)
         {
             string[] split = Str.Split(str, separator, count);
@@ -1145,5 +1153,19 @@ namespace LittleUmph
             return list;
         }
         #endregion
+
+        /// <summary>
+        /// Make the the name is valid to be use a variable name.
+        /// </summary>
+        /// <param name="varName">Name of the variable.</param>
+        /// <returns></returns>
+        public static string CleanVarName(string varName)
+        {
+            varName = Regex.Replace(varName, @"^\d+", "");
+            varName = Regex.Replace(varName, @"[^a-z_A-Z]", "");
+
+            return varName;
+
+        }
     }
 }

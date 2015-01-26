@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -88,7 +89,7 @@ namespace LittleUmph
 
         private string _filepath;
         /// <summary>
-        /// Gets or sets the filepath to the xml dir.
+        /// Gets or sets the full filepath to the xml file.
         /// </summary>
         /// <value>The filepath.</value>
         public string Filepath
@@ -499,9 +500,47 @@ namespace LittleUmph
         #endregion
 
 
+        #region [ Group Functions ]
+        /// <summary>
+        /// Removes the group from the settings collection.
+        /// </summary>
+        /// <param name="groupName">Name of the group.</param>
+        public void RemoveGroup(string groupName)
+        {
+            try
+            {
+                XmlNode groupNode = GetGroup(groupName);
+                if (groupNode != null)
+                {
+                    groupNode.ParentNode.RemoveChild(groupNode);
+
+                    if (AutoSave)
+                    {
+                        SaveToFile();
+                    }
+                }
+            }
+            catch (Exception xpt)
+            {
+                Gs.Log.Error("DataStore.RemoveGroup()", xpt.Message);
+            }
+        }
+
+        /// <summary>
+        /// Groups the exist.
+        /// </summary>
+        /// <param name="groupName">Name of the group.</param>
+        /// <returns></returns>
+        public bool GroupExist(string groupName)
+        {
+            return GetGroup(groupName) != null;
+        }
+        #endregion
+
+
         #region [ SaveToFile ]
         /// <summary>
-        /// Saves all the current settings to xml to another directory (clone xml file).
+        /// Saves all the current settings to xml.
         /// </summary>
         public void SaveToFile()
         {
@@ -555,33 +594,8 @@ namespace LittleUmph
                 Gs.Log.Error("DataStore.Remove()", xpt.Message);
             }
         }
-
-        /// <summary>
-        /// Removes the group from the settings collection.
-        /// </summary>
-        /// <param name="groupName">Name of the group.</param>
-        public void RemoveGroup(string groupName)
-        {
-            try
-            {
-                XmlNode groupNode = GetGroup(groupName);
-                if (groupNode != null)
-                {
-                    _xmlDoc.DocumentElement.RemoveChild(groupNode);
-
-                    if (AutoSave)
-                    {
-                        SaveToFile();
-                    }
-                }
-            }
-            catch (Exception xpt)
-            {
-                Gs.Log.Error("DataStore.RemoveGroup()", xpt.Message);
-            }
-        }
         #endregion
-
+        
         #region [ Delete & View File ]
         /// <summary>
         /// Deletes the xml settings dir.
@@ -900,26 +914,31 @@ namespace LittleUmph
         #endregion
 
         #region [ Save & Load ]
+        public void Save(object obj)
+        {
+            Save(_DefaultGroup, obj);
+        }
+
         /// <summary>
         /// Save the setting associate with the control or a component
         /// </summary>
         /// <param name="obj">The obj.</param>
-        public void Save(object obj)
+        public void Save(string groupName, object obj)
         {
             if (obj is CheckBox)
             {
                 CheckBox c = (CheckBox)obj;
-                Set(c.Name, c.Checked);
+                Set(groupName, c.Name, c.Checked);
             }
             else if (obj is RadioButton)
             {
                 RadioButton c = (RadioButton)obj;
-                Set(c.Name, c.Checked);
+                Set(groupName, c.Name, c.Checked);
             }
             else if (obj is ComboBox)
             {
                 ComboBox c = (ComboBox)obj;
-                Set(c.Name, c.SelectedIndex);
+                Set(groupName, c.Name, c.SelectedIndex);
             }
             else if (obj is ListBox)
             {
@@ -927,7 +946,7 @@ namespace LittleUmph
 
                 if (c.SelectionMode == SelectionMode.One || c.SelectedIndices.Count == 1)
                 {
-                    Set(c.Name, c.SelectedIndex);
+                    Set(groupName, c.Name, c.SelectedIndex);
                 }
                 // multi & extended
                 else if (c.SelectionMode != SelectionMode.None)
@@ -937,68 +956,78 @@ namespace LittleUmph
                         var list = Arr.ToString(c.SelectedIndices);
                         string arr = Arr.Implode(",", list);
 
-                        Set(c.Name, arr);
+                        Set(groupName, c.Name, arr);
                     }
                 }
                 else
                 {
-                    Set(c.Name, "-1");
+                    Set(groupName, c.Name, "-1");
                 }
             }
             else if (obj is NumericUpDown)
             {
                 NumericUpDown c = (NumericUpDown)obj;
-                Set(c.Name, c.Value);
+                Set(groupName, c.Name, c.Value);
             }
             else if (obj is Control)
-            {                
+            {
                 Control control = (Control)obj;
-                Set(control.Name + "_Text", control.Text);
+                Set(groupName, control.Name + "_Text", control.Text);
             }
             else if (obj is ToolStripMenuItem)
             {
                 var c = (ToolStripMenuItem)obj;
-                Set(c.Name, c.Checked);
+                Set(groupName, c.Name, c.Checked);
             }
             else if (obj is MenuItem)
             {
-                var c = (MenuItem)obj;                
-                Set("MenuItem" + c.Index, c.Checked);
+                var c = (MenuItem)obj;
+                Set(groupName, "MenuItem" + c.Index, c.Checked);
             }
             else if (obj is FolderBrowserDialog)
             {
                 var c = (FolderBrowserDialog)obj;
-                Set("FolderBrowserDialog", c.SelectedPath);
+                Set(groupName, "FolderBrowserDialog", c.SelectedPath);
             }
             else if (obj is OpenFileDialog)
             {
                 var c = (OpenFileDialog)obj;
-                Set("OpenFileDialog", c.InitialDirectory);
+                Set(groupName, "OpenFileDialog", c.InitialDirectory);
             }
+        }
+
+        /// <summary>
+        /// Loads the specified object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        public void Load(object obj)
+        {
+            Load(_DefaultGroup, obj);
         }
 
         /// <summary>
         /// Load the setting associate with the control.
         /// </summary>
+        /// <param name="groupName">Name of the group.</param>
         /// <param name="obj">The obj.</param>
-        public void Load(object obj)
+        public void Load(string groupName, object obj)
         {
             if (obj is Control)
             {
                 if (obj is CheckBox)
                 {
                     CheckBox c = (CheckBox)obj;
-                    c.Checked = Get(c.Name, false);
+                    c.Checked = Get(groupName, c.Name, false);
                 }
                 else if (obj is RadioButton)
                 {
                     RadioButton c = (RadioButton)obj;
-                    c.Checked = Get(c.Name, false);
+                    c.Checked = Get(groupName, c.Name, false);
                 }
                 else if (obj is ComboBox)
                 {
                     ComboBox c = (ComboBox)obj;
-                    var index = Get(c.Name, -1);
+                    var index = Get(groupName, c.Name, -1);
                     if (index < c.Items.Count)
                     {
                         c.SelectedIndex = index;
@@ -1010,7 +1039,7 @@ namespace LittleUmph
 
                     if (c.SelectionMode == SelectionMode.One)
                     {
-                        int index = Get(c.Name, -1);
+                        int index = Get(groupName, c.Name, -1);
                         index = Num.Filter(index, -1, c.Items.Count);
                         if (index != -1)
                         {
@@ -1020,7 +1049,7 @@ namespace LittleUmph
                     // multi & extended
                     else if (c.SelectionMode != SelectionMode.None)
                     {
-                        string arr = Get(c.Name, "-1");
+                        string arr = Get(groupName, c.Name, "-1");
                         if (arr.Contains(","))
                         {
                             string[] split = arr.Split(',');
@@ -1040,23 +1069,23 @@ namespace LittleUmph
                 else if (obj is NumericUpDown)
                 {
                     NumericUpDown c = (NumericUpDown)obj;
-                    c.Value = Get(c.Name, c.Minimum);
+                    c.Value = Get(groupName, c.Name, c.Minimum);
                 }
 
                 Control control = (Control)obj;
-                control.Enabled = Get(control.Name + "_Enabled", true);
-                control.Visible = Get(control.Name + "_Visible", true);
-                control.Text = Get(control.Name + "_Text", control.Text);
+                control.Enabled = Get(groupName, control.Name + "_Enabled", true);
+                control.Visible = Get(groupName, control.Name + "_Visible", true);
+                control.Text = Get(groupName, control.Name + "_Text", control.Text);
             }
             else if (obj is ToolStripMenuItem)
             {
                 var c = (ToolStripMenuItem)obj;
-                c.Checked = Get(c.Name, false);
+                c.Checked = Get(groupName, c.Name, false);
             }
             else if (obj is MenuItem)
             {
                 var c = (MenuItem)obj;
-                c.Checked = Get("MenuItem" + c.Index, false);
+                c.Checked = Get(groupName, "MenuItem" + c.Index, false);
             }
             else if (obj is FolderBrowserDialog)
             {
@@ -1074,23 +1103,40 @@ namespace LittleUmph
         /// Saves the collection control or gui components.
         /// </summary>
         /// <param name="objects">The objects.</param>
-        public void SaveCollection(params object[] objects)
+        public void SaveCollection(IList objects)
         {
-            foreach (var o in objects)
+            SaveCollection(_DefaultGroup, objects);
+        }
+
+        public void SaveCollection(string groupName, IList objects)
+        {
+            foreach (object o in objects)
             {
-                Save(o);
+                Save(groupName, o);
             }
         }
+
+        
 
         /// <summary>
         /// Load the properties of the collection control or gui components
         /// </summary>
         /// <param name="objects">The objects.</param>
-        public void LoadCollection(params object[] objects)
+        public void LoadCollection(IList objects)
         {
-            foreach (var o in objects)
+            LoadCollection(_DefaultGroup, objects);
+        }
+
+        /// <summary>
+        /// Load the properties of the collection control or gui components
+        /// </summary>
+        /// <param name="groupName">Name of the group.</param>
+        /// <param name="objects">The objects.</param>
+        public void LoadCollection(string groupName, IList objects)
+        {
+            foreach (object o in objects)
             {
-                Load(o);
+                Load(groupName, o);
             }
         }
         #endregion        

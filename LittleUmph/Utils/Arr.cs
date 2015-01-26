@@ -175,6 +175,25 @@ namespace LittleUmph
         }
         #endregion
 
+        public static List<T> Cast<T>(IList objects)
+        {
+            var list = new List<T>();
+            foreach (var o in objects)
+            {
+                list.Add(DType.Cast<T>(o, default(T)));
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Froms the string.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="str">The string.</param>
+        /// <param name="valueOnError">The value on error.</param>
+        /// <param name="separator">The separator.</param>
+        /// <param name="count">The count.</param>
+        /// <returns></returns>
         public static List<T> FromString<T>(string str,  T[] valueOnError, string separator = ",", int count = 0)
         {
             List<T> list = new List<T>();
