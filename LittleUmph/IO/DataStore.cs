@@ -167,6 +167,26 @@ namespace LittleUmph
                 }
             }
         }
+
+        /// <summary>
+        /// List of all the groups in the setting file.
+        /// </summary>
+        public List<string> Groups
+        {
+            get
+            {
+                var list = new List<string>();
+
+                var nodes = _xmlDoc.DocumentElement.SelectNodes("Group");
+                foreach (XmlNode n in nodes)
+                {
+                    var name = n.Attributes["Name"].Value;
+                    list.Add(name);
+                }
+
+                return list;
+            }
+        }
         #endregion
         
         #region [ Constructors ]
