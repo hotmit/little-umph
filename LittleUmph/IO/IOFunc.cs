@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml.Serialization;
 using Microsoft.Win32;
 using System.Collections;
 // Must import manually
@@ -2223,70 +2224,64 @@ namespace LittleUmph
         #endregion
 
         #region [ Serialize SortedList ]
+
         /// <summary>
         /// Serialize the sortedlist to a dir.
+        /// 
         /// </summary>
-        /// <param name="sortedList">The sorted list.</param>
-        /// <param name="targetPath">The target path.</param>
+        /// <param name="sortedList">The sorted list.</param><param name="targetPath">The target path.</param>
         public static void SortedListSerialize(SortedList sortedList, string targetPath)
         {
             try
             {
-                var bf = new BinaryFormatter();
-                using (FileStream fs = File.OpenWrite(targetPath))
-                {
-                    bf.Serialize(fs, sortedList);
-                }
+                using (FileStream fileStream = File.OpenWrite(targetPath))
+                    new BinaryFormatter().Serialize((Stream)fileStream, (object)sortedList);
             }
-            catch (Exception xpt)
+            catch (Exception ex)
             {
             }
         }
 
         /// <summary>
         /// Load the SortedList with serialized data.
+        /// 
         /// </summary>
-        /// <param name="sortedList">The sorted list.</param>
-        /// <param name="sourcePath">The source path.</param>
+        /// <param name="sortedList">The sorted list.</param><param name="sourcePath">The source path.</param>
         public static void SortedListDeserialize(out SortedList sortedList, string sourcePath)
         {
             if (!File.Exists(sourcePath))
             {
                 sortedList = new SortedList();
-                return;
             }
-
-            try
+            else
             {
-                var bf = new BinaryFormatter();
-                using (FileStream fs = File.OpenRead(sourcePath))
+                try
                 {
-                    sortedList = (SortedList)bf.Deserialize(fs);
+                    BinaryFormatter binaryFormatter = new BinaryFormatter();
+                    using (FileStream fileStream = File.OpenRead(sourcePath))
+                        sortedList = (SortedList)binaryFormatter.Deserialize((Stream)fileStream);
                 }
-            }
-            catch (Exception xpt)
-            {
-                sortedList = new SortedList();
+                catch (Exception ex)
+                {
+                    sortedList = new SortedList();
+                }
             }
         }
 
         /// <summary>
         /// Binaries the serialize.
+        /// 
         /// </summary>
-        /// <param name="obj">The object to serialize.</param>
-        /// <param name="targetPath">Where to save the result.</param>
-        /// <returns></returns>
+        /// <param name="obj">The object to serialize.</param><param name="targetPath">Where to save the result.</param>
+        /// <returns/>
         public static bool BinarySerialize(object obj, string targetPath)
         {
             try
             {
-                var bf = new BinaryFormatter();
-                using (FileStream fs = File.OpenWrite(targetPath))
-                {
-                    bf.Serialize(fs, obj);
-                }
+                using (FileStream fileStream = File.OpenWrite(targetPath))
+                    new BinaryFormatter().Serialize((Stream)fileStream, obj);
             }
-            catch (Exception xpt)
+            catch (Exception ex)
             {
                 return false;
             }
@@ -2295,27 +2290,20 @@ namespace LittleUmph
 
         /// <summary>
         /// Binaries the deserialize.
+        /// 
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sourcePath">The source path.</param>
-        /// <param name="valueOnError">The value on error.</param>
-        /// <returns></returns>
+        /// <typeparam name="T"/><param name="sourcePath">The source path.</param><param name="valueOnError">The value on error.</param>
+        /// <returns/>
         public static T BinaryDeserialize<T>(string sourcePath, T valueOnError)
         {
             if (!File.Exists(sourcePath))
-            {
                 return valueOnError;
-            }
-
             try
             {
-                var bf = new BinaryFormatter();
-                using (FileStream fs = File.OpenRead(sourcePath))
-                {
-                    return (T)bf.Deserialize(fs); 
-                }
+                using (FileStream fileStream = File.OpenRead(sourcePath))
+                    return (T)new BinaryFormatter().Deserialize((Stream)fileStream);
             }
-            catch (Exception xpt)
+            catch (Exception ex)
             {
                 return valueOnError;
             }
@@ -2323,54 +2311,83 @@ namespace LittleUmph
 
         /// <summary>
         /// Binaries the serialize.
+        /// 
         /// </summary>
         /// <param name="obj">The object to serialize.</param>
-        /// <returns></returns>
+        /// <returns/>
         public static byte[] BinarySerialize(object obj)
         {
             try
             {
-                var bf = new BinaryFormatter();
-                using (var ms = new MemoryStream())
+                using (MemoryStream memoryStream = new MemoryStream())
                 {
-                    bf.Serialize(ms, obj);
-
-                    return ms.ToArray();
-                }                
+                    new BinaryFormatter().Serialize((Stream)memoryStream, obj);
+                    return memoryStream.ToArray();
+                }
             }
-            catch (Exception xpt)
+            catch (Exception ex)
             {
             }
-
-            return null;
+            return (byte[])null;
         }
 
         /// <summary>
         /// Binaries the deserialize.
+        /// 
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="bytes">The bytes.</param>
-        /// <param name="valueOnError">The value on error.</param>
-        /// <returns></returns>
+        /// <typeparam name="T"/><param name="bytes">The bytes.</param><param name="valueOnError">The value on error.</param>
+        /// <returns/>
         public static T BinaryDeserialize<T>(byte[] bytes, T valueOnError)
         {
             try
             {
-                var bf = new BinaryFormatter();
-                using (var ms = new MemoryStream(bytes))
+                using (MemoryStream memoryStream = new MemoryStream(bytes))
                 {
-                    return (T)bf.Deserialize(ms);
+                    return (T)new BinaryFormatter().Deserialize((Stream)memoryStream);
                 }
             }
-            catch (Exception xpt)
+            catch (Exception ex)
             {
             }
             return valueOnError;
         }
-        #endregion
 
-        #region [ JPortion ]
-                
+        /// <summary>
+        /// Serialize object to xml format.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="filePath">The path of the output xml file</param>
+        public static void XmlSerializer(object obj, string filePath)
+        {
+            using (TextWriter textWriter = (TextWriter)new StreamWriter(filePath))
+            {
+                new XmlSerializer(obj.GetType()).Serialize(textWriter, obj);
+            }
+        }
+
+        /// <summary>
+        /// Construct object based on the xml file.
+        /// </summary>
+        /// <typeparam name="T">The target object type</typeparam>
+        /// <param name="filePath">Xml file</param>
+        /// <param name="defaultValue">Default value on error</param>
+        /// <returns></returns>
+        public static T XmlDeserializer<T>(string filePath, T defaultValue)
+        {
+            try
+            {
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    return (T)new XmlSerializer(typeof(T)).Deserialize((Stream)fileStream);
+                }
+            }
+            catch (Exception ex)
+            {
+                return defaultValue;
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Writes to a text dir on the desktop.
@@ -2419,7 +2436,6 @@ namespace LittleUmph
                 //WriteToDesktop("Shutdown Error.txt", xpt.Message, true);
             }
         }
-        #endregion
 
         /// <summary>
         /// Cleans the name of the dir, remove all invalid characters.
