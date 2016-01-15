@@ -83,6 +83,22 @@ namespace LittleUmph.GUI.Components
         public ToolStripMenuItem TopMostMenuItem { get; set; }
 
         /// <summary>
+        /// Auto save AutoSaveCollection.
+        /// </summary>
+        [Category("[ SettingSaver - AutoSave ]")]
+        [Description("Auto save AutoSaverList.")]
+        [DefaultValue(true)]
+        public bool AutoSaveAutoSaverList { get; set; }
+
+        /// <summary>
+        /// Auto load AutoSaveCollection.
+        /// </summary>
+        [Category("[ SettingSaver - AutoSave ]")]
+        [Description("Auto load AutoSaverList.")]
+        [DefaultValue(true)]
+        public bool AutoLoadAutoSaverList { get; set; }
+
+        /// <summary>
         /// Gets or sets the XML saver.
         /// </summary>
         /// <value>
@@ -117,6 +133,8 @@ namespace LittleUmph.GUI.Components
         {
             SaveFormLocation = true;
             SaveLocation = SaveLocation.CurrentFolder;
+            AutoLoadAutoSaverList = true;
+            AutoSaveAutoSaverList = true;
 
             if (container != null)
             {
@@ -174,7 +192,10 @@ namespace LittleUmph.GUI.Components
             DataStore.AutoSave = true;
             DataStore.DefaultGroup = Form.Name;
 
-            DataStore.LoadCollection(AutoSaverList.ToArray());
+            if (AutoLoadAutoSaverList)
+            {
+                LoadCollection();
+            }
 
             Form.Load += Form_Load;
             Form.FormClosing += Form_Closing;
@@ -183,7 +204,23 @@ namespace LittleUmph.GUI.Components
             {
                 DataLoaded(this);
             }
-        }        
+        }
+
+        /// <summary>
+        /// Load the settings for the AutoSaverList.
+        /// </summary>
+        public void LoadCollection()
+        {
+            DataStore.LoadCollection(AutoSaverList.ToArray());
+        }
+
+        /// <summary>
+        /// Save the settings for the AutoSaverList.
+        /// </summary>
+        public void SaveCollection()
+        {
+            DataStore.SaveCollection(AutoSaverList.ToArray());
+        }
         #endregion
 
         #region [ Loading ]
@@ -269,8 +306,11 @@ namespace LittleUmph.GUI.Components
                 DataStore.SaveFormTopMost(Form);
             }
 
-            DataStore.SaveCollection(AutoSaverList.ToArray());
-        }
+            if (AutoSaveAutoSaverList)
+            {
+                SaveCollection();
+            }
+        }        
         #endregion
 
 
