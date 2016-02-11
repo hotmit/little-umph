@@ -933,7 +933,6 @@ namespace LittleUmph
         public static void CbSelectByName(ComboBox cbo, string name, bool ignoreCase = true, int defaultIndex = 0)
         {
             bool foundIt = false;
-
             for (int i = 0; i < cbo.Items.Count; i++)
             {
                 if (Str.IsEqual(cbo.Items[i].ToString(), name, ignoreCase))
@@ -950,6 +949,17 @@ namespace LittleUmph
             }
         }
 
+        public static void CbRemoveByName(ComboBox cbo, string name, bool ignoreCase = true)
+        {
+            for (int i = 0; i < cbo.Items.Count; i++)
+            {
+                if (Str.IsEqual(cbo.Items[i].ToString(), name, ignoreCase))
+                {
+                    cbo.Items.RemoveAt(i);
+                    break;
+                }
+            }
+        }
         #endregion
 
         #region [ ShowContext ]
