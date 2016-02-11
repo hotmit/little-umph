@@ -559,9 +559,12 @@ namespace LittleUmph
         /// <summary>
         /// Get the display text of the group.
         /// </summary>
-        /// <param name="groupName"></param>
-        /// <returns>Returns groupName if title is not found.</returns>
-        public string GetGroupTitle(string groupName)
+        /// <param name="groupName">Name of the group.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>
+        /// Returns groupName if title is not found.
+        /// </returns>
+        public string GetGroupTitle(string groupName, string defaultValue = null)
         {
             try
             {
@@ -576,7 +579,7 @@ namespace LittleUmph
                 Gs.Log.Error("DataStore.GetGroupTitle()", xpt.Message);
             }
 
-            return groupName;
+            return defaultValue;
         }
 
         /// <summary>
