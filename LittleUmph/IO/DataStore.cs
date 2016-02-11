@@ -594,7 +594,7 @@ namespace LittleUmph
                 XmlNode groupNode = GetGroup(groupName);
                 if (groupNode != null)
                 {
-                    groupNode.Attributes["title"].Value = title;
+                    CreateOrReplaceAttribute(ref groupNode, "Title", title);
 
                     if (AutoSave)
                     {
@@ -842,6 +842,21 @@ namespace LittleUmph
             {
                 Gs.Log.Error("DataStore.GetGroup()", xpt.Message);
                 return null;
+            }
+        }
+
+        private void CreateOrReplaceAttribute(ref XmlNode node, string key, string value)
+        {
+            XmlAttribute attrib = _xmlDoc.CreateAttribute(key);
+            attrib.Value = value;
+
+            if (node.Attributes[attrib.Name] != null)
+            {
+                node.Attributes[attrib.Name].Value = attrib.Value;
+            }
+            else
+            {
+                node.Attributes.Append(attrib);
             }
         }
 
