@@ -922,6 +922,28 @@ namespace LittleUmph
         #endregion
         #endregion
 
+        #region [ ComboBox ]
+        /// <summary>
+        /// Select item by the display name.
+        /// </summary>
+        /// <param name="cbo"></param>
+        /// <param name="name"></param>
+        /// <param name="ignoreCase"></param>
+        /// <param name="defaultIndex"></param>
+        public static void CbSelectByName(ComboBox cbo, string name, bool ignoreCase = true, int defaultIndex = 0)
+        {
+            for (int i = 0; i < cbo.Items.Count; i++)
+            {
+                if (Str.IsEqual(cbo.Items[i].ToString(), name, ignoreCase))
+                {
+                    cbo.SelectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        #endregion
+
         #region [ ShowContext ]
         /// <summary>
         /// Show context menu above the supplied control
