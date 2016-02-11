@@ -555,6 +555,55 @@ namespace LittleUmph
         {
             return GetGroup(groupName) != null;
         }
+
+        /// <summary>
+        /// Get the display text of the group.
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <returns>Returns groupName if title is not found.</returns>
+        public string GetGroupTitle(string groupName)
+        {
+            try
+            {
+                XmlNode groupNode = GetGroup(groupName);
+                if (groupNode != null)
+                {
+                    return groupNode.Attributes["title"].Value;
+                }
+            }
+            catch (Exception xpt)
+            {
+                Gs.Log.Error("DataStore.GetGroupTitle()", xpt.Message);
+            }
+
+            return groupName;
+        }
+
+        /// <summary>
+        /// Set the display title for the group.
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="title"></param>
+        public void SetGroupTitle(string groupName, string title)
+        {
+            try
+            {
+                XmlNode groupNode = GetGroup(groupName);
+                if (groupNode != null)
+                {
+                    groupNode.Attributes["title"].Value = title;
+
+                    if (AutoSave)
+                    {
+                        SaveToFile();
+                    }
+                }
+            }
+            catch (Exception xpt)
+            {
+                Gs.Log.Error("DataStore.SetGroupTitle()", xpt.Message);
+            }
+        }
         #endregion
 
 
@@ -793,7 +842,12 @@ namespace LittleUmph
             }
         }
 
-        private static string CleanName(string name)
+        /// <summary>
+        /// Remove invalid characters from group names or key names.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static string CleanName(string name)
         {
             name = Regex.Replace(name, @"[^a-zA-Z0-9_\.\-]", "").Trim();
             return name;
