@@ -932,13 +932,21 @@ namespace LittleUmph
         /// <param name="defaultIndex"></param>
         public static void CbSelectByName(ComboBox cbo, string name, bool ignoreCase = true, int defaultIndex = 0)
         {
+            bool foundIt = false;
+
             for (int i = 0; i < cbo.Items.Count; i++)
             {
                 if (Str.IsEqual(cbo.Items[i].ToString(), name, ignoreCase))
                 {
                     cbo.SelectedIndex = i;
+                    foundIt = true;
                     break;
                 }
+            }
+
+            if (!foundIt && defaultIndex >= -1 && defaultIndex < cbo.Items.Count)
+            {
+                cbo.SelectedIndex = defaultIndex;
             }
         }
 
