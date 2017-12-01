@@ -204,5 +204,24 @@ namespace LittleUmph
             }
             return list;
         }
+
+        /// <summary>
+        /// Copy array and truncate to the specified length
+        /// </summary>
+        /// <param name="arr">The array to copy</param>
+        /// <param name="length">Truncate to this length</param>
+        /// <returns></returns>
+        public static List<T> Copy<T> (Array arr, int length){
+            // make sure the lenght does not exceed the input array length
+            length = Math.Min(length, arr.Length);
+            if (length <= 0)
+            {
+                return new List<T>();
+            }
+
+            T[] package = new T[length];
+            Array.Copy(arr, package, length);
+            return new List<T>(package);
+        }
     }
 }

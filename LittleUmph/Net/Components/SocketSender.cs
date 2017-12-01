@@ -350,6 +350,7 @@ namespace LittleUmph.Net.Components
                         }
                         else
                         {
+                            List<byte> rawData = new List<byte>();
                             byte[] buffer = new byte[4096];
                             int lenRecv;
                             string data = "";
@@ -360,12 +361,12 @@ namespace LittleUmph.Net.Components
                                     return;
                                 }
 
-                                data += Encoding.UTF8.GetString(buffer, 0, lenRecv);                                
+                                data += Encoding.UTF8.GetString(buffer, 0, lenRecv);
 
                                 if (CurrentSocket.Available == 0)
                                 {
                                     Dlgt.ThreadSafeInvoke(ServerDataReceived, this,
-                                        new SocketDataEventArgs(CurrentSocket, Address, PortNumber, data));
+                                        new SocketDataEventArgs(CurrentSocket, Address, PortNumber, data, rawData));
                                     break;
                                 }
                             }

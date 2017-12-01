@@ -12,10 +12,14 @@
     <AssemblyName>LittleUmph</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -141,6 +145,12 @@
     <Compile Include="Media\LbBitmap.cs" />
     <Compile Include="Media\LbBox.cs" />
     <Compile Include="Media\Player.cs" />
+    <Compile Include="Net\Components\SerialWatcher.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Net\Components\SerialWatcher.Designer.cs">
+      <DependentUpon>SerialWatcher.cs</DependentUpon>
+    </Compile>
     <Compile Include="Net\Fetcher.cs" />
     <Compile Include="Net\QNet.cs" />
     <Compile Include="Net\Components\SocketListener.cs">

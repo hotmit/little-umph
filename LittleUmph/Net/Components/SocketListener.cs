@@ -399,6 +399,7 @@ namespace LittleUmph.Net.Components
                     {
                         clientDisconnected = false;
 
+                        List<byte> rawData = new List<byte>();
                         string result = "";
                         byte[] buffer = new byte[4096];
                         int lenRecv;
@@ -421,7 +422,7 @@ namespace LittleUmph.Net.Components
                         if (result.Length > 0)
                         {
                             Dlgt.Invoke(ThreadSafe, DataReceived, this,
-                                         new SocketDataEventArgs(recv, address, portUsed, result));
+                                            new SocketDataEventArgs(recv, address, portUsed, result, rawData));
                         }
                     }
                 }
@@ -646,6 +647,8 @@ namespace LittleUmph.Net.Components
             get { return _Data; }
             private set { _Data = value; }
         }
+
+        public IList<byte> RawData { get; set; }
         #endregion
 
         #region [ Constructors ]
@@ -656,9 +659,10 @@ namespace LittleUmph.Net.Components
         /// <param name="address">The address.</param>
         /// <param name="port">The port.</param>
         /// <param name="data">The data.</param>
-        public SocketDataEventArgs(Socket socket, string address, int port, string data) : base(socket, address, port)
+        public SocketDataEventArgs(Socket socket, string address, int port, string data, IList<byte> rawData) : base(socket, address, port)
         {
             Data = data;
+            RawData = rawData;
         }
         #endregion
     }
