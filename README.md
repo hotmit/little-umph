@@ -30,7 +30,7 @@ db.AsyncTruncateLog(sizeInMb: 10);
 // Get sql server utc datetime
 DateTime dbUtcTime = db.GetDbDateTimeUtc();
 ```
-For more indept examples on this you can goto [Database Helper](Docs/Database-Helper) under documentation.
+For more indept examples on this you can goto [Database Helper](Docs/Database-Helper.md) under documentation.
 
 
 ## Bulk Insert
@@ -48,7 +48,7 @@ for (int j = 0; j < 10000; j++)
 int result = db.BulkInsert(tableName: "MillionsRows", 
                      columnList: "(Name, Height, Birthday)", data: dataList);
 ```
-Documentation: [Bulk Insert](Docs/Bulk-Insert)
+Documentation: [Bulk Insert](Docs/Bulk-Insert.md)
 
 
 ## Simple Encryption
@@ -63,7 +63,7 @@ string encrypted = SimpleEncryption.Encrypt("This is my secret ...", secretPassP
 // plaintext = "This is my secret ..."
 string plaintext = SimpleEncryption.Decrypt(encrypted, secretPassPhrase);
 ```
-Documentation: [Simple Encryption](Docs/Simple-Encryption)
+Documentation: [Simple Encryption](Docs/Simple-Encryption.md)
 
 
 ## Data Conversion
@@ -86,7 +86,7 @@ string hexByt = ByteArr.ToHex(bytArr);
 int decByt = ByteArr.ToInt(bytArr, valueOnError: -1);
 string strByt = ByteArr.ToString(bytArr);
 ```
-Documentation: [Conversions](Docs/Conversions)
+Documentation: [Conversions](Docs/Conversions.md)
 
 
 ## Word Of Caution
@@ -95,14 +95,14 @@ Documentation: [Conversions](Docs/Conversions)
 
 # Document Index
 * DB
-	* [Database Helper](Docs/Database-Helper)
-	* [Bulk Insert](Docs/Bulk-Insert)
+	* [Database Helper](Docs/Database-Helper.md)
+	* [Bulk Insert](Docs/Bulk-Insert.md)
 * Tools
-	* [Simple Encryption](Docs/Simple-Encryption)
+	* [Simple Encryption](Docs/Simple-Encryption.md)
 * Utils
-	* [Conversions](Docs/Conversions)
-	* [Arr](Docs/Arr)
-	* [Str](Docs/Str)
+	* [Conversions](Docs/Conversions.md)
+	* [Arr](Docs/Arr.md)
+	* [Str](Docs/Str.md)
 
 
 ---
