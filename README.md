@@ -67,7 +67,7 @@ Documentation: [Simple Encryption](Docs/Simple-Encryption.md)
 
 
 ## Data Conversion
-```
+```cs
 byte[] bytBin = Bin.ToBytes("10110110");
 string hexBin = Bin.ToHex("10110110");
 int decBin = Bin.ToInt("10110110", valueOnError: -1);
