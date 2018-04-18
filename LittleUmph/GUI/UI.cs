@@ -1118,5 +1118,38 @@ namespace LittleUmph
             IOFunc.RunCmd("Explorer.exe", string.Format("/select ,\"{0}\"", path));
         }
         #endregion
+
+        /// <summary>
+        /// Clears the format of the richtextbox and restore the text selection and position.
+        /// </summary>
+        /// <param name="richTextBox">The RCHTXT list.</param>
+        public static void ClearFormat(RichTextBox richTextBox)
+        {
+            try 
+	        {
+                richTextBox.SuspendLayout();
+
+                var start = richTextBox.SelectionStart;
+                var length = richTextBox.SelectionLength;
+
+                richTextBox.Text = richTextBox.Text;
+                richTextBox.SelectAll();
+                richTextBox.SelectionColor = richTextBox.ForeColor;
+                richTextBox.SelectionFont = richTextBox.Font;
+                richTextBox.SelectionBackColor = richTextBox.BackColor;
+
+                if (start != 0 && length != 0)
+                {
+                    richTextBox.SelectionStart = start;
+                    richTextBox.SelectionLength = length;
+
+                    UI.ScrollTo(richTextBox, start, true);
+                }
+	        }
+	        finally
+	        {
+                richTextBox.ResumeLayout(true);
+	        }
+        }
     }
 }
