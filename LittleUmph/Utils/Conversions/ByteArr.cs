@@ -75,14 +75,14 @@ namespace LittleUmph
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
-        public static string ToHex(byte[] data)
+        public static string ToHex(byte[] data, string byteSepartor = "")
         {
             if (data == null)
             {
                 return string.Empty;
             }
 
-            string hex = BitConverter.ToString(data).Replace("-", "");
+            string hex = BitConverter.ToString(data).Replace("-", byteSepartor);
             return hex;
         }
         #endregion
