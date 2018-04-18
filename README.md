@@ -1,7 +1,6 @@
 ## Project Description
 > It's a little library to help you to alleviate some of the mundane stuff during your development. It has some nifty stuff like a neat database wrapper, conversion utilities, string functions and vast of other mini helpers to improve the efficiency and consistency of your code.
 
----
 ## Database Helper
 ```cs
 // Get single value from a row using column index
@@ -31,8 +30,8 @@ db.AsyncTruncateLog(sizeInMb: 10);
 // Get sql server utc datetime
 DateTime dbUtcTime = db.GetDbDateTimeUtc();
 ```
+For more indept examples on this you can goto [Database Helper](Docs/Database-Helper) under documentation.
 
-For more indept examples on this you can goto [Database Helper]() under documentation.
 
 ## Bulk Insert
 *Inserted one million rows in less than 40 seconds.*
@@ -49,9 +48,9 @@ for (int j = 0; j < 10000; j++)
 int result = db.BulkInsert(tableName: "MillionsRows", 
                      columnList: "(Name, Height, Birthday)", data: dataList);
 ```
-Documentation: [Bulk Insert]()
+Documentation: [Bulk Insert](Docs/Bulk-Insert)
 
----
+
 ## Simple Encryption
 > Encrypt using AES encryption but all the passphrase and encrypted data are in string format, which make it easier to handle.
 
@@ -64,9 +63,9 @@ string encrypted = SimpleEncryption.Encrypt("This is my secret ...", secretPassP
 // plaintext = "This is my secret ..."
 string plaintext = SimpleEncryption.Decrypt(encrypted, secretPassPhrase);
 ```
-Documentation: [Simple Encryption]()
+Documentation: [Simple Encryption](Docs/Simple-Encryption)
 
----
+
 ## Data Conversion
 ```
 byte[] bytBin = Bin.ToBytes("10110110");
@@ -87,12 +86,24 @@ string hexByt = ByteArr.ToHex(bytArr);
 int decByt = ByteArr.ToInt(bytArr, valueOnError: -1);
 string strByt = ByteArr.ToString(bytArr);
 ```
+Documentation: [Conversions](Docs/Conversions)
 
-Documentation: [Conversions]()
 
----
 ## Word Of Caution
 > This library is primary is using by me for my personal projects. Hence there are a few of experimental stuff inside the library. If you see a file marked as Alpha please use caution when using it. Other than that everything else I will make sure the interface remain the same even when the code changes.
+
+
+# Document Index
+* DB
+	* [Database Helper](Docs/Database-Helper)
+	* [Bulk Insert](Docs/Bulk-Insert)
+* Tools
+	* [Simple Encryption](Docs/Simple-Encryption)
+* Utils
+	* [Conversions](Docs/Conversions)
+	* [Arr](Docs/Arr)
+	* [Str](Docs/Str)
+
 
 ---
 # Version Marker
