@@ -167,6 +167,26 @@ namespace LittleUmph
                 }
             }
         }
+
+        /// <summary>
+        /// List of all the groups in the setting file.
+        /// </summary>
+        public List<string> Groups
+        {
+            get
+            {
+                var list = new List<string>();
+
+                var nodes = _xmlDoc.DocumentElement.SelectNodes("Group");
+                foreach (XmlNode n in nodes)
+                {
+                    var name = n.Attributes["Name"].Value;
+                    list.Add(name);
+                }
+
+                return list;
+            }
+        }
         #endregion
         
         #region [ Constructors ]
@@ -535,6 +555,58 @@ namespace LittleUmph
         {
             return GetGroup(groupName) != null;
         }
+
+        /// <summary>
+        /// Get the display text of the group.
+        /// </summary>
+        /// <param name="groupName">Name of the group.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>
+        /// Returns groupName if title is not found.
+        /// </returns>
+        public string GetGroupTitle(string groupName, string defaultValue = null)
+        {
+            try
+            {
+                XmlNode groupNode = GetGroup(groupName);
+                if (groupNode != null)
+                {
+                    return groupNode.Attributes["title"].Value;
+                }
+            }
+            catch (Exception xpt)
+            {
+                Gs.Log.Error("DataStore.GetGroupTitle()", xpt.Message);
+            }
+
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// Set the display title for the group.
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="title"></param>
+        public void SetGroupTitle(string groupName, string title)
+        {
+            try
+            {
+                XmlNode groupNode = GetGroup(groupName);
+                if (groupNode != null)
+                {
+                    CreateOrReplaceAttribute(ref groupNode, "Title", title);
+
+                    if (AutoSave)
+                    {
+                        SaveToFile();
+                    }
+                }
+            }
+            catch (Exception xpt)
+            {
+                Gs.Log.Error("DataStore.SetGroupTitle()", xpt.Message);
+            }
+        }
         #endregion
 
 
@@ -773,7 +845,27 @@ namespace LittleUmph
             }
         }
 
-        private static string CleanName(string name)
+        private void CreateOrReplaceAttribute(ref XmlNode node, string key, string value)
+        {
+            XmlAttribute attrib = _xmlDoc.CreateAttribute(key);
+            attrib.Value = value;
+
+            if (node.Attributes[attrib.Name] != null)
+            {
+                node.Attributes[attrib.Name].Value = attrib.Value;
+            }
+            else
+            {
+                node.Attributes.Append(attrib);
+            }
+        }
+
+        /// <summary>
+        /// Remove invalid characters from group names or key names.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static string CleanName(string name)
         {
             name = Regex.Replace(name, @"[^a-zA-Z0-9_\.\-]", "").Trim();
             return name;
