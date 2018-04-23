@@ -12,6 +12,7 @@ using System.IO;
 using System.Threading;
 
 using LittleUmph;
+using System.Linq;
 
 ///Todo: this component need a complete clean up
 
@@ -410,8 +411,9 @@ namespace LittleUmph.Net.Components
                             {
                                 return;
                             }
-
-                            result += Encoding.UTF8.GetString(buffer, 0, lenRecv);
+                            var data = buffer.Take(lenRecv).ToArray();
+                            rawData.AddRange(data);
+                            result += Encoding.UTF8.GetString(data);
 
                             if (recv.Available == 0)
                             {
@@ -484,16 +486,32 @@ namespace LittleUmph.Net.Components
         #endregion
 
 
+        /// <summary>
+        /// Send a reply to the incoming socket
+        /// </summary>
+        /// <param name="socket"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public bool Send(Socket socket, string data)
+        {
+            var payload = Encoding.UTF8.GetBytes(data);
+            return Send(socket, payload);
+        }
+
+        /// <summary>
+        /// Send a reply to the incoming socket
+        /// </summary>
+        /// <param name="socket"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public bool Send(Socket socket, byte[] data)
         {
             if (socket.Connected)
             {
                 try
                 {
-                    var payload = Encoding.UTF8.GetBytes(data);
-                    int dataSent = socket.Send(payload);
-
-                    return payload.Length == dataSent;
+                    int dataSent = socket.Send(data);
+                    return data.Length == dataSent;
                 }
                 catch (Exception xpt)
                 {
@@ -648,7 +666,21 @@ namespace LittleUmph.Net.Components
             private set { _Data = value; }
         }
 
+        /// <summary>
+        /// Return the raw byte array which received from the incoming connection
+        /// </summary>
         public IList<byte> RawData { get; set; }
+
+        /// <summary>
+        /// Return the hex representation of RawData
+        /// </summary>
+        public string Hex
+        {
+            get
+            {
+                return ByteArr.ToHex(RawData.ToArray(), "-");
+            }
+        }
         #endregion
 
         #region [ Constructors ]
@@ -659,6 +691,7 @@ namespace LittleUmph.Net.Components
         /// <param name="address">The address.</param>
         /// <param name="port">The port.</param>
         /// <param name="data">The data.</param>
+        /// <param name="rawData">The data in byte[] form.</param>
         public SocketDataEventArgs(Socket socket, string address, int port, string data, IList<byte> rawData) : base(socket, address, port)
         {
             Data = data;
