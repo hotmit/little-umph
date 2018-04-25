@@ -168,6 +168,26 @@ namespace LittleUmph
             return Color.Empty;
         }
 
+        /// <summary>
+        /// Invert color to get maximized contrast. Good for ForeColor calculation.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="isBlackAndWhite"></param>
+        /// <returns></returns>
+        public static Color Invert(Color c, bool isBlackAndWhite = true)
+        {
+            if (!isBlackAndWhite)
+            {
+                return Color.FromArgb(c.A, 255 - c.R, 255 - c.G, 255 - c.B);
+            }
+
+            if (ColorDifference(c, Color.Black) > 500){
+                return Color.Black;
+            }
+
+            return Color.White;
+        }
+
 
 
         #region [ Short Func ]

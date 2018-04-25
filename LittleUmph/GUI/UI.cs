@@ -109,7 +109,7 @@ namespace LittleUmph
         /// <param name="enterKeyOnly">if true Ctrl+Enter do not raise the action (similaly Shift+Enter or Alt+Enter)</param>
         public static void OnEnter(Control control, Action action, bool enterKeyOnly = true)
         {
-            control.KeyUp += (s, evt) =>
+            control.KeyDown += (s, evt) =>
             {
                 if (evt.KeyCode == Keys.Enter)
                 {
@@ -119,6 +119,40 @@ namespace LittleUmph
                     }
                     action();
                     evt.Handled = true;
+                }
+            };
+        }
+
+        /// <summary>
+        /// Increament or decreament when the up or down key is pressed.
+        /// </summary>
+        /// <param name="txt">The textbox</param>
+        /// <param name="min">Min value</param>
+        /// <param name="max">Max value</param>
+        public static void NumericUpDownOnTextbox(TextBox txt, int min = Int32.MinValue, int max = Int32.MaxValue)
+        {
+            txt.KeyUp += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
+                {
+                    double val = Str.DoubleVal(txt, Double.MinValue);
+                    if (val == Double.MinValue)
+                    {
+                        return;
+                    }
+
+                    if (val >= min && val <= max)
+                    {
+                        if (e.KeyCode == Keys.Up)
+                        {
+                            val++;
+                        }
+                        else
+                        {
+                            val--;
+                        }
+                    }
+                    txt.Text = String.Format("{0:#.##}", val);
                 }
             };
         }

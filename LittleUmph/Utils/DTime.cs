@@ -56,6 +56,26 @@ namespace LittleUmph
             DateTime endDate = dateTime.AddMonths(1).AddDays(-dateTime.Day);
             return new DateTime(endDate.Year, endDate.Month, endDate.Day, 23, 59, 59, 999);
         }
+
+        /// <summary>
+        /// Round the datetime
+        /// </summary>
+        /// <example>Round(dt, TimeSpan.FromMinutes(5)); => round the time to the nearest 5 minutes.</example>
+        /// <param name = "dateTime"></param>
+        /// <param name = "roundBy">The time use to round the time to</param>
+        /// <returns></returns>        
+        public static DateTime Round(DateTime dateTime, TimeSpan roundBy)
+        {
+            long remainder = dateTime.Ticks % roundBy.Ticks;
+            if (remainder < roundBy.Ticks / 2)
+            {
+                // round down
+                return dateTime.AddTicks(-remainder);
+            }
+
+            // round up
+            return dateTime.AddTicks(roundBy.Ticks - remainder);
+        }
         #endregion
 
         #region [ SetSystemDateTime ]
@@ -164,7 +184,7 @@ namespace LittleUmph
 
         #region [ Christian Dates ]
         /// <summary>
-        /// Easters the sunday.
+        /// Easters sunday.
         /// </summary>
         /// <param name="year">The year.</param>
         /// <returns></returns>
@@ -192,7 +212,7 @@ namespace LittleUmph
         }
 
         /// <summary>
-        /// Goods the friday.
+        /// Goods friday.
         /// </summary>
         /// <param name="year">The year.</param>
         /// <returns></returns>
@@ -202,7 +222,7 @@ namespace LittleUmph
         }
 
         /// <summary>
-        /// Ascensions the day.
+        /// Ascensions day.
         /// </summary>
         /// <param name="year">The year.</param>
         /// <returns></returns>
